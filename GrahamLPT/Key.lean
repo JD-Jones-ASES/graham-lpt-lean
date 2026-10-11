@@ -5,7 +5,7 @@ public import GrahamLPT.Basic
 /-!
 # Key
 
-The key lemma by counting, and the optimality of LPT when every job exceeds a third of the optimum (ARCH.md §3). Lane `key`. Helpers carry the prefix `key_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+The key lemma by counting, and the optimality of LPT when every job exceeds a third of the optimum Helpers carry the prefix `key_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section
@@ -25,7 +25,7 @@ theorem key_card_mul_le_sum {n : ℕ} (p : Fin n → ℝ) (hanti : Antitone p) (
     exact Fin.le_iff_val_le_val.mpr (by omega)
   simpa [Finset.sum_const, nsmul_eq_mul] using h
 
-/-- The key lemma (ARCH.md §3; README (i)): `p` nonincreasing and nonnegative, `σ` a list schedule, `τ` any assignment
+/-- The key lemma (PROOF.md §3): `p` nonincreasing and nonnegative, `σ` a list schedule, `τ` any assignment
 whose loads from the jobs of index `≤ k` are at most `T`, and `T < 3 p_k`: then the machine of `k` ends by `T`. -/
 theorem key_lemma {m n : ℕ} (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p) (σ : Fin n → Fin m)
     (hσ : IsListSchedule p σ) (k : Fin n) (τ : Fin n → Fin m) (T : ℝ)

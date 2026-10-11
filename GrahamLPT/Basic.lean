@@ -5,7 +5,7 @@ public import GrahamLPT.Defs
 /-!
 # Basic
 
-Loads, makespans, the existence of list and LPT schedules, the attained optimum, relabeling (ARCH.md §1). Lane `basic`. Helpers carry the prefix `bs_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+Loads, makespans, the existence of list and LPT schedules, the attained optimum, relabeling Helpers carry the prefix `bs_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

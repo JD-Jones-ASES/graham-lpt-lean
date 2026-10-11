@@ -6,7 +6,7 @@ public import GrahamLPT.Basic
 # ListOptimum
 
 Graham's `ω₀` is the optimum: for nonnegative lengths every assignment `τ` is matched or improved by a list schedule
-(stretch lane `listopt`; helpers carry the prefix `lo_`). The order is the start times of `τ` with each machine's jobs
+(helpers carry the prefix `lo_`). The order is the start times of `τ` with each machine's jobs
 run back to back in index order, `s j = loadBefore p τ j (τ j)`. In that order every list schedule starts each job of
 positive length no later than `τ` does (`lo_core`): if job `k` found every machine busy past `s k`, each machine would
 carry an earlier job running at time `s k`; those `m` jobs run at `s k` under `τ` too, on `m` distinct machines of `τ`,

@@ -6,7 +6,7 @@ public import GrahamLPT.TightLPT
 /-!
 # Ratio
 
-The least constants, `2 − 1/m` and `4/3 − 1/(3m)` (ARCH.md §8). Lane `ratio`. Helpers carry the prefix `rt_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+The least constants, `2 − 1/m` and `4/3 − 1/(3m)` Helpers carry the prefix `rt_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

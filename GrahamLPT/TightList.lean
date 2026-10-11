@@ -5,7 +5,7 @@ public import GrahamLPT.ListBound
 /-!
 # TightList
 
-The unit-job family: optimum `m`, list-schedule makespan `2m − 1` (ARCH.md §5). Lane `tightlist`. Helpers carry the prefix `tl_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+The unit-job family: optimum `m`, list-schedule makespan `2m − 1` Helpers carry the prefix `tl_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

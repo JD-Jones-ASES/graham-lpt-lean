@@ -5,7 +5,7 @@ public import GrahamLPT.LPTBound
 /-!
 # TightLPT
 
-Graham's family: optimum `3m`, LPT makespan `4m − 1` (ARCH.md §6). Lane `tightlpt`. Helpers carry the prefix `tg_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+Graham's family: optimum `3m`, LPT makespan `4m − 1` Helpers carry the prefix `tg_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

@@ -8,7 +8,7 @@ public import GrahamLPT.Basic
 The remark of the bench README (H5) as a theorem: on `3` machines the six jobs `9, 5, 5, 4, 4, 4` have an LPT
 schedule of makespan `13` while the optimal makespan is `12`. Every job is at least a third of the optimum (the jobs
 of length `4` equal `12 / 3`), so `n ≤ 2m` alone does not make LPT optimal and the strict hypothesis of
-`lpt_optimal_of_third_lt` cannot be weakened to `≤`. Stretch lane `counter`; helpers carry the prefix `cx_`.
+`lpt_optimal_of_third_lt` cannot be weakened to `≤`. Helpers carry the prefix `cx_`.
 -/
 
 @[expose] public section

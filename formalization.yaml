@@ -124,7 +124,7 @@ sources:
     location: >-
       Proceedings of the 1976 ACM SIGMETRICS Conference on Computer Performance Modeling, Measurement and Evaluation,
       306-310; also Revue Francaise d'Automatique, Informatique et Recherche Operationnelle, Informatique 10 (5, suppl.)
-      (1976), 17-25 (bibliographic data from Crossref and secondary records). Not read.
+      (1976), 17-25 (bibliographic data from Crossref and secondary sources). Not read.
     relationship: "background"
     author_endorsement: "not-contacted"
     note: >-
@@ -134,7 +134,7 @@ sources:
     authors: ["Bo Chen"]
     id: "doi:10.1016/0167-6377(93)90024-B"
     type: "paper"
-    location: "Operations Research Letters 14 (3) (October 1993), 139-142; abstract read (IAOR record); the paper not read."
+    location: "Operations Research Letters 14 (3) (October 1993), 139-142; abstract read (the IAOR abstract); the paper not read."
     relationship: "background"
     author_endorsement: "not-contacted"
     note: >-
@@ -167,7 +167,7 @@ sources:
     id: "doi:10.1145/1478873.1478901"
     type: "paper"
     location: >-
-      AFIPS Conference Proceedings 40, Spring Joint Computer Conference (1972), 205-217 (the ACM Digital Library record
+      AFIPS Conference Proceedings 40, Spring Joint Computer Conference (1972), 205-217 (the ACM Digital Library entry
       under this DOI files it as the 1971 Fall Joint Computer Conference; the scan's running head reads Spring Joint
       Computer Conference, 1972). Read as printed pages: the tie rule, p. 206; the bounds (1)-(2), p. 208; the theorem (3)
       on the k largest tasks with its example, pp. 208-209; the decreasing list, the bound (6) and both examples, p. 209;

@@ -8,7 +8,7 @@ public import GrahamLPT.Basic
 Chen's property of LPT schedules (Chen 1993, Prop. 2 as quoted by Della Croce–Scatamacchia 2020): in an LPT
 schedule the `j`-th job placed on a machine has length at most `C(τ)/j` for every assignment `τ`; hence, when a
 machine attaining the makespan holds `k` jobs, `k·m·C(σ) ≤ ((k + 1)m − 1)·C(τ)` (the Coffman–Sethi form).
-Stretch lane `coffman`. Helpers carry the prefix `cs_`.
+Helpers carry the prefix `cs_`.
 
 The route (this development). Fix `P > 0` below every job placed so far and weigh a job `x` by `⌊x/P⌋`. For two
 machines `h, g` write `D` for the load of `h` minus the load of `g`, `Φ` for the weight of `h` minus the number of
