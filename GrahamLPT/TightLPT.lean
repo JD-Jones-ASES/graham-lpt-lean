@@ -17,11 +17,11 @@ open Finset
 theorem tg_grahamJobs_apply_lt (m : ℕ) (j : Fin (2 * m + 1)) (h : (j : ℕ) < 2 * m) :
     grahamJobs m j = 2 * (m : ℝ) - 1 - (((j : ℕ) / 2 : ℕ) : ℝ) := by
   unfold grahamJobs
-  exact if_pos h
+  exact ite_eq_left h
 
 theorem tg_grahamJobs_apply_last (m : ℕ) (j : Fin (2 * m + 1)) (h : 2 * m ≤ (j : ℕ)) : grahamJobs m j = m := by
   unfold grahamJobs
-  exact if_neg (by omega)
+  exact ite_eq_right (by omega)
 
 theorem tg_le_grahamJobs (m : ℕ) (j : Fin (2 * m + 1)) : (m : ℝ) ≤ grahamJobs m j := by
   by_cases h : (j : ℕ) < 2 * m
@@ -65,8 +65,8 @@ theorem tg_grahamJobs_sum (m : ℕ) : ∑ j, grahamJobs m j = 3 * (m : ℝ) ^ 2 
   have h2 : ∑ j ∈ range (2 * m),
       (if j < 2 * m then 2 * (m : ℝ) - 1 - ((j / 2 : ℕ) : ℝ) else (m : ℝ)) =
       ∑ j ∈ range (2 * m), (2 * (m : ℝ) - 1 - ((j / 2 : ℕ) : ℝ)) :=
-    sum_congr rfl fun j hj => if_pos (mem_range.1 hj)
-  rw [h1, sum_range_succ, if_neg (lt_irrefl _), h2, tg_sum_range_aux]
+    sum_congr rfl fun j hj => ite_eq_left (mem_range.1 hj)
+  rw [h1, sum_range_succ, ite_eq_right (lt_irrefl _), h2, tg_sum_range_aux]
   ring
 
 /-- The pairs `j, 2m − 1 − j` of the first `2m` jobs sum to `3m − 1`. -/
@@ -230,7 +230,7 @@ theorem tg_listSchedule_makespan (m : ℕ) [NeZero m] (σ : Fin (2 * m + 1) → 
     have h2 : loadBefore (grahamJobs m) σ (2 * m + 1) (σ ⟨2 * m, by omega⟩) =
         loadBefore (grahamJobs m) σ (2 * m) (σ ⟨2 * m, by omega⟩) + grahamJobs m ⟨2 * m, by omega⟩ := by
       have := bs_loadBefore_succ (grahamJobs m) σ ⟨2 * m, by omega⟩ (σ ⟨2 * m, by omega⟩)
-      rw [if_pos rfl] at this
+      rw [ite_eq_left rfl] at this
       exact this
     have h3 := bs_loadBefore_of_le (grahamJobs m) σ (2 * m + 1) le_rfl (σ ⟨2 * m, by omega⟩)
     have h4 := load_le_makespan_internal (grahamJobs m) σ (σ ⟨2 * m, by omega⟩)
