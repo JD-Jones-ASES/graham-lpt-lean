@@ -27,7 +27,7 @@ open Finset
 
 /-- The number of jobs of index below `k` on machine `i`, as an integer. -/
 def cs_cnt {m n : ℕ} (σ : Fin n → Fin m) (k : ℕ) (i : Fin m) : ℤ :=
-  ∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = i), (1 : ℤ)
+  ∑ _j ∈ univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = i), (1 : ℤ)
 
 /-- The weight `Σ ⌊p_j / P⌋` of the jobs of index below `k` on machine `i`. -/
 noncomputable def cs_fl {m n : ℕ} (p : Fin n → ℝ) (P : ℝ) (σ : Fin n → Fin m) (k : ℕ) (i : Fin m) : ℤ :=
@@ -216,5 +216,145 @@ theorem cs_cnt_le_fl_of_min {m n : ℕ} (p : Fin n → ℝ) (hanti : Antitone p)
   have h1 := hI.1 hD
   have h2 : 0 ≤ ⌊(loadBefore p σ k h - loadBefore p σ k (σ k)) / P⌋ := Int.floor_nonneg.2 (div_nonneg hD hP.le)
   omega
+
+/-- Chen's property, sorted form: job `k` is the `(c + 1)`-th job on its machine, `c` the jobs of smaller index
+there; then `(c + 1) · p_k ≤ C(τ)` for every assignment `τ`. -/
+theorem cs_job_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (τ : Fin n → Fin m) :
+    (((univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = σ k)).card : ℝ) + 1) * p k ≤ makespan p τ := by
+  set c := (univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = σ k)).card with hc
+  have hτ0 : 0 ≤ makespan p τ := bs_makespan_nonneg p hp τ
+  rcases (hp k).eq_or_lt with h0 | hpos
+  · rw [← h0, mul_zero]
+    exact hτ0
+  by_contra hlt
+  push Not at hlt
+  have hk : ∀ j : Fin n, (j : ℕ) < (k : ℕ) + 1 → p k ≤ p j := fun j hj => hanti (Fin.le_def.2 (by omega))
+  have hk' : ∀ j : Fin n, (j : ℕ) < k → p k ≤ p j := fun j hj => hk j (by omega)
+  have hcnt : cs_cnt σ k (σ k) = (c : ℤ) := by simp [cs_cnt, hc]
+  have e : univ.filter (fun j : Fin n => (j : ℕ) < (k : ℕ) + 1) =
+      insert k (univ.filter (fun j : Fin n => (j : ℕ) < k)) := by
+    ext j
+    simp only [mem_filter, mem_univ, true_and, mem_insert]
+    constructor
+    · intro h1
+      by_cases hjk : j = k
+      · exact Or.inl hjk
+      · have : (j : ℕ) ≠ k := fun e => hjk (Fin.ext e)
+        exact Or.inr (by omega)
+    · rintro (rfl | h1) <;> omega
+  have hlow : (m : ℤ) * c + 1 ≤ ∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < (k : ℕ) + 1), ⌊p j / p k⌋ := by
+    rw [e, sum_insert (by simp), div_self hpos.ne', Int.floor_one,
+      ← cs_sum_fiber (fun j => ⌊p j / p k⌋) σ k]
+    have h1 : ∑ _i : Fin m, (c : ℤ) ≤
+        ∑ i, ∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = i), ⌊p j / p k⌋ :=
+      Finset.sum_le_sum fun i _ => by
+        have := cs_cnt_le_fl_of_min p hanti σ hσ hpos k hk' i
+        rw [hcnt] at this
+        exact this
+    simp only [sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul] at h1
+    linarith
+  have hfib : ∀ g : Fin m,
+      ∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < (k : ℕ) + 1 ∧ τ j = g), ⌊p j / p k⌋ ≤ (c : ℤ) := by
+    intro g
+    have h1 : ((∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < (k : ℕ) + 1 ∧ τ j = g), ⌊p j / p k⌋ : ℤ) : ℝ) ≤
+        loadBefore p τ ((k : ℕ) + 1) g / p k := by
+      push_cast
+      unfold loadBefore
+      rw [sum_div]
+      exact sum_le_sum fun j _ => Int.floor_le _
+    have h2 := (bs_loadBefore_le_load p hp τ ((k : ℕ) + 1) g).trans (bs_load_le_makespan p τ g)
+    have h3 : loadBefore p τ ((k : ℕ) + 1) g / p k < (c : ℝ) + 1 := by
+      rw [div_lt_iff₀ hpos]
+      linarith
+    have h4 : ((∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < (k : ℕ) + 1 ∧ τ j = g), ⌊p j / p k⌋ : ℤ) : ℝ) <
+        ((c : ℤ) : ℝ) + 1 := by
+      have h5 := h1.trans_lt h3
+      push_cast at h5 ⊢
+      linarith
+    have h5 : (∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < (k : ℕ) + 1 ∧ τ j = g), ⌊p j / p k⌋ : ℤ) <
+        (c : ℤ) + 1 := by exact_mod_cast h4
+    omega
+  have hup : ∑ j ∈ univ.filter (fun j : Fin n => (j : ℕ) < (k : ℕ) + 1), ⌊p j / p k⌋ ≤ (m : ℤ) * c := by
+    rw [← cs_sum_fiber (fun j => ⌊p j / p k⌋) τ ((k : ℕ) + 1)]
+    have h1 := Finset.sum_le_sum fun g (_ : g ∈ (univ : Finset (Fin m))) => hfib g
+    simp only [sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul] at h1
+    exact h1
+  omega
+
+/-- The Coffman–Sethi form, sorted: a machine `i` attaining the makespan of a list schedule in nonincreasing order,
+holding `k` jobs, gives `k·m·C(σ) ≤ ((k + 1)m − 1)·C(τ)` for every assignment `τ`. -/
+theorem cs_bound {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (τ : Fin n → Fin m) (i : Fin m)
+    (hi : load p σ i = makespan p σ) :
+    ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) * m * makespan p σ ≤
+      (((univ.filter (fun j : Fin n => σ j = i)).card + 1) * m - 1) * makespan p τ := by
+  have hm : (1 : ℝ) ≤ m := by
+    have := NeZero.ne m
+    exact_mod_cast Nat.one_le_iff_ne_zero.mpr this
+  have hτ0 : 0 ≤ makespan p τ := bs_makespan_nonneg p hp τ
+  rcases (univ.filter (fun j : Fin n => σ j = i)).eq_empty_or_nonempty with hE | hne
+  · have h0 : makespan p σ = 0 := by
+      rw [← hi]
+      unfold load
+      rw [hE, sum_empty]
+    rw [hE, h0, card_empty, Nat.cast_zero, mul_zero]
+    exact mul_nonneg (by linarith) hτ0
+  · obtain ⟨k, hkF, hkmax⟩ := Finset.exists_max_image _ (fun j : Fin n => (j : ℕ)) hne
+    have hki : σ k = i := by simpa using hkF
+    have eF : univ.filter (fun j : Fin n => σ j = i) =
+        insert k (univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = i)) := by
+      ext j
+      simp only [mem_filter, mem_univ, true_and, mem_insert]
+      constructor
+      · intro hj
+        have h1 : (j : ℕ) ≤ k := hkmax j (by simp [hj])
+        by_cases hjk : j = k
+        · exact Or.inl hjk
+        · have : (j : ℕ) ≠ k := fun e => hjk (Fin.ext e)
+          exact Or.inr ⟨by omega, hj⟩
+      · rintro (rfl | ⟨_, h2⟩)
+        · exact hki
+        · exact h2
+    have hknot : k ∉ univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = i) := by simp
+    have hcard : (((univ.filter (fun j : Fin n => σ j = i)).card : ℕ) : ℝ) =
+        ((univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = σ k)).card : ℝ) + 1 := by
+      rw [eF, card_insert_of_notMem hknot, hki]
+      push_cast
+      ring
+    have hload : makespan p σ = loadBefore p σ k (σ k) + p k := by
+      rw [← hi, hki]
+      unfold load loadBefore
+      rw [eF, sum_insert hknot]
+      ring
+    have hchen := cs_job_le p hp hanti σ hσ k τ
+    rw [← hcard] at hchen
+    have h1 := bs_mul_loadBefore_le p σ hσ k
+    have h2 := bs_sum_filter_add_le p hp k
+    have h3 := bs_sum_le_mul_makespan p τ
+    have hmC : (m : ℝ) * makespan p σ ≤ m * makespan p τ + (m - 1) * p k := by
+      rw [hload]
+      linarith
+    have hc0 : (0 : ℝ) ≤ ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) := Nat.cast_nonneg _
+    have h4 := mul_le_mul_of_nonneg_left hmC hc0
+    have h5 := mul_le_mul_of_nonneg_left hchen (by linarith : (0 : ℝ) ≤ m - 1)
+    nlinarith
+
+/-- The Coffman–Sethi form for LPT schedules (Coffman–Sethi 1976 as corrected by Chen 1993): for nonnegative
+lengths, an LPT schedule `σ`, a machine `i` attaining its makespan and holding `k` jobs, and every assignment `τ`,
+`k·m·C(σ) ≤ ((k + 1)m − 1)·C(τ)`. -/
+theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (τ : Fin n → Fin m) (i : Fin m)
+    (hi : load p σ i = makespan p σ) :
+    ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) * m * makespan p σ ≤
+      (((univ.filter (fun j : Fin n => σ j = i)).card + 1) * m - 1) * makespan p τ := by
+  obtain ⟨π, hanti, hl⟩ := hσ
+  have hi' : load (p ∘ π) (σ ∘ π) i = makespan (p ∘ π) (σ ∘ π) := by
+    rw [bs_load_comp, makespan_comp_internal, hi]
+  have h := cs_bound (p ∘ π) (fun j => hp _) hanti (σ ∘ π) hl (τ ∘ π) i hi'
+  have hcard : (univ.filter (fun j : Fin n => (σ ∘ π) j = i)).card =
+      (univ.filter (fun j : Fin n => σ j = i)).card :=
+    Finset.card_equiv π (fun j => by simp)
+  rwa [hcard, makespan_comp_internal, makespan_comp_internal] at h
 
 end GrahamLPT
