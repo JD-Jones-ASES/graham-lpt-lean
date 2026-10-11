@@ -183,5 +183,4 @@ theorem lpt_eq_optMakespan_of_third_lt_internal {m n : ℕ} [NeZero m] (p : Fin 
     exact lpt_optimal_of_third_lt_internal p hp σ hσ τ (fun j => by rw [hτ]; exact h j)
   · exact optMakespan_le_internal p σ
 
-
 end GrahamLPT
