@@ -6,8 +6,8 @@
 In order: the pins (lean-toolchain and the Mathlib revision of lake-manifest.json are the committed
 ones), the source guard and its subprocess controls for prohibited Lake options, the definition
 comparison between Challenge.lean and GrahamLPT/Defs.lean, the
-statement comparison between Challenge.lean and Solution.lean, the standard-library replays
-scripts/check_kuhn.py (every construction) and scripts/check_boundary.py (the line b = 2a), the metadata (formalization.yaml parses;
+statement comparison between Challenge.lean and Solution.lean, the standard-library replay
+scripts/check_lpt.py (the bounds, the key lemma and both families, under -I and under -O -I), the metadata (formalization.yaml parses;
 its title length, main results and alignment against comparator.json, every alignment status proved; no
 definition holes; no original-proof source), the Lean build of every target (including the Test audit, which fails on
 any axiom beyond propext, Classical.choice and Quot.sound), the module-resolution check, the
@@ -69,11 +69,14 @@ def check_script(name, args):
 
 
 def check_replay():
-    result = run([sys.executable, "-I", "scripts/check_kuhn.py"], capture_output=True)
-    lines = result.stdout.strip().splitlines()
-    good = result.returncode == 0 and lines[-1:] == ["VERDICT: PASS"]
-    return step("check_kuhn.py (the standard-library replay of the certificates)", good,
-                lines[-1] if lines else (result.stderr.strip().splitlines()[-1:] or [""])[0])
+    ok = True
+    for flags in (["-I"], ["-O", "-I"]):
+        result = run([sys.executable] + flags + ["scripts/check_lpt.py"], capture_output=True)
+        lines = result.stdout.strip().splitlines()
+        good = result.returncode == 0 and lines[-1:] == ["VERDICT: PASS"]
+        ok &= step(f"check_lpt.py (the standard-library replay under {' '.join(flags)})", good,
+                   lines[-1] if lines else (result.stderr.strip().splitlines()[-1:] or [""])[0])
+    return ok
 
 
 def check_yaml():
@@ -225,7 +228,6 @@ def main():
     ok &= check_script("definitions", ["scripts/check_definitions.py"])
     ok &= check_script("statements", ["scripts/check_statements.py"])
     ok &= check_replay()
-    ok &= check_script("boundary certificates and exact polytope replay", ["-I", "scripts/check_boundary.py"])
     ok &= check_yaml()
     if not skip_build:
         if fetch:

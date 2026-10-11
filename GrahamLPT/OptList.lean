@@ -31,7 +31,7 @@ theorem ol_index_bijective (m : ℕ) : Function.Bijective (ol_index m) := sorry
 def ol_machine (m : ℕ) [NeZero m] (i : Fin (2 * m + 1)) : Fin m :=
   if h₁ : (i : ℕ) < m - 1 then ⟨i, by omega⟩
   else if h₂ : (i : ℕ) ≤ m then ⟨m - 1, by have := NeZero.pos m; omega⟩
-  else if h₃ : (i : ℕ) < 2 * m then ⟨2 * m - 2 - i, by have := NeZero.pos m; omega⟩
+  else if h₃ : (i : ℕ) < 2 * m then ⟨2 * m - 1 - i, by have := NeZero.pos m; omega⟩
   else ⟨m - 1, by have := NeZero.pos m; omega⟩
 
 /-- In the explicit order, the schedule `ol_machine` is a list schedule. -/
