@@ -296,6 +296,178 @@ def lifted():
     print("Chen's property, the Coffman-Sethi form and the optimum over lists replayed on the sweep and random instances")
 
 
+# ---------------------------------------------------------------- the critical job, Dosa's theorem, the fixed job count
+
+def opt_states(p, m):
+    """The optimum by dynamic programming over sorted load vectors: every assignment is represented by the multiset of
+    its loads, and adding a job to either of two equal loads gives the same multiset."""
+    states = {tuple([F(0)] * m)}
+    for x in p:
+        new = set()
+        for st in states:
+            for i in range(m):
+                if i > 0 and st[i] == st[i - 1]:
+                    continue
+                loads = list(st)
+                loads[i] += x
+                new.add(tuple(sorted(loads)))
+        states = new
+    return min(max(st) for st in states)
+
+
+def certificates(p, sigma, m, c_opt, taus=()):
+    """Every critical job k (completion = makespan C) of a list schedule of a sorted p: min(C, 3 p_k) <= OPT (and
+    <= C(tau) for every tau given); C <= 3 p_k forces C = OPT; the other-machine bound q (m - 1) C <= ((q + 1)(m - 1) - 1)
+    OPT for a machine i != sigma_k with q jobs before k when q + 2 <= m; and, when 3m C = (4m - 1) C(tau), the forced
+    structure: 3 p_k = C(tau), every load before k equal, every tau-load equal to C(tau), no job after k."""
+    n = len(p)
+    loads = loads_of(p, sigma, m)
+    c = max(loads)
+    count = [0] * m
+    for k in range(n):
+        before = loads_of(p[:k], sigma[:k], m)
+        if before[sigma[k]] + p[k] == c:
+            check(f"critical min m={m} p={p} s={sigma} k={k}", min(c, 3 * p[k]) <= c_opt)
+            for tau in taus:
+                check(f"critical min vs tau m={m} p={p} s={sigma} k={k} tau={tau}", min(c, 3 * p[k]) <= makespan(p, tau, m))
+            if c <= 3 * p[k]:
+                check(f"observed third m={m} p={p} s={sigma} k={k}", c == c_opt)
+            for i in range(m):
+                if i != sigma[k] and count[i] + 2 <= m:
+                    q = count[i]
+                    check(f"other-machine bound m={m} p={p} s={sigma} k={k} i={i}",
+                          q * (m - 1) * c <= ((q + 1) * (m - 1) - 1) * c_opt)
+            if m >= 2:
+                for tau in taus:
+                    T = makespan(p, tau, m)
+                    if 3 * m * c == (4 * m - 1) * T:
+                        tl = loads_of(p, tau, m)
+                        check(f"equality structure m={m} p={p} s={sigma} k={k} tau={tau}",
+                              3 * p[k] == T and all(b == before[sigma[k]] for b in before)
+                              and all(x == T for x in tl) and all(p[j] == 0 for j in range(k + 1, n)))
+        count[sigma[k]] += 1
+
+
+def is_graham_multiple(raw, m):
+    if len(raw) != 2 * m + 1 or raw[-1] <= 0:
+        return False
+    a = F(raw[-1], m)
+    return [F(x) for x in raw] == [a * g for g in graham_jobs(m)]
+
+
+def dosa_structure(p, sigma, tau, m):
+    """At an equality instance: the facts the counting proof of Dosa's theorem rests on."""
+    n = len(p)
+    k = n - 1
+    t = p[k]
+    T = makespan(p, tau, m)
+    A = loads_of(p[:k], sigma[:k], m)[sigma[k]]
+    d = t / m
+    check(f"Dosa: T = 3t, A = 3t - t/m m={m} p={p}", T == 3 * t and A == 3 * t - d)
+    fibers = [[j for j in range(k) if sigma[j] == i] for i in range(m)]
+    check(f"Dosa: two jobs per machine before k, sum A m={m} p={p} s={sigma}",
+          all(len(f) == 2 and sum(p[j] for j in f) == A for f in fibers))
+    tfibers = [[j for j in range(n) if tau[j] == i] for i in range(m)]
+    check(f"Dosa: tau-machines are pairs of sum 3t or triples of t m={m} p={p} tau={tau}",
+          all((len(f) == 2 and sum(p[j] for j in f) == 3 * t) or (len(f) == 3 and all(p[j] == t for j in f))
+              for f in tfibers))
+    check(f"Dosa: every job in [t, 2t - t/m] m={m} p={p}", all(t <= p[j] <= 2 * t - d for j in range(n)))
+    values = set(p) | {A - x for x in p} | {3 * t - x for x in p}
+    c = lambda x: sum(1 for j in range(n) if p[j] == x)
+    cp = lambda x: sum(1 for j in range(k) if p[j] == x)
+    check(f"Dosa: count symmetry under the sigma-pairing m={m} p={p}", all(cp(x) == cp(A - x) for x in values))
+    check(f"Dosa: count symmetry under the tau-pairing m={m} p={p}",
+          all(c(x) == c(3 * t - x) for x in values if x != t and x != 2 * t))
+    check(f"Dosa: two jobs of each length t + i t/m before k m={m} p={p}", all(cp(t + i * d) == 2 for i in range(m)))
+
+
+def dosa_sweep():
+    """Every nonincreasing positive integer instance of the boxes, every LPT branch, the optimum: equality
+    3m C = (4m - 1) OPT holds on some branch iff on every branch iff the instance is a positive multiple of Graham's
+    2m + 1 jobs; in particular the inequality is strict for every n != 2m + 1; at every equality instance and every
+    optimal tau the structure of the counting proof holds."""
+    from itertools import combinations_with_replacement
+    boxes = {2: (7, 6), 3: (8, 5)}
+    found = {}
+    for m, (nmax, vmax) in boxes.items():
+        found[m] = []
+        for n in range(1, nmax + 1):
+            for raw in combinations_with_replacement(range(vmax, 0, -1), n):
+                p = [F(x) for x in raw]
+                c_opt = opt_states(p, m)
+                bs = branches(p, m)
+                eqs = [3 * m * makespan(p, s, m) == (4 * m - 1) * c_opt for s in bs]
+                graham = is_graham_multiple(raw, m)
+                check(f"Dosa: equality iff Graham multiple m={m} p={raw}", any(eqs) == graham)
+                check(f"Dosa: every branch agrees m={m} p={raw}", all(eqs) == any(eqs))
+                if n != 2 * m + 1:
+                    check(f"strict for n != 2m + 1 m={m} p={raw}", not any(eqs))
+                if graham:
+                    found[m].append(raw)
+                    opts = [tau for tau in product(range(m), repeat=n) if makespan(p, tau, m) == c_opt]
+                    for s in bs:
+                        for tau in opts:
+                            dosa_structure(p, s, tau, m)
+    check("Dosa: the equality instances of the boxes", found == {2: [(6, 6, 4, 4, 4), (3, 3, 2, 2, 2)],
+                                                                  3: [(5, 5, 4, 4, 3, 3, 3)]})
+    print("Dosa's theorem: equality exactly at", {m: [tuple(int(x) for x in r) for r in v] for m, v in found.items()})
+
+
+def critical_sweep():
+    """The certificates and the equality structure on the nonnegative sweep (every branch, every assignment tau for
+    n <= 4), the DP optimum against the brute-force optimum, and the other-machine bound on random instances with
+    up to five machines."""
+    sizes = {1: 4, 2: 5, 3: 4}
+    for m in (1, 2, 3):
+        for n in range(1, sizes[m] + 1):
+            for raw in product(range(0, 5), repeat=n):
+                if any(raw[j] < raw[j + 1] for j in range(n - 1)):
+                    continue
+                p = [F(x) for x in raw]
+                c_opt = opt(p, m)
+                check(f"DP optimum m={m} p={raw}", opt_states(p, m) == c_opt)
+                taus = list(product(range(m), repeat=n)) if n <= 4 else ()
+                for s in branches(p, m):
+                    certificates(p, s, m, c_opt, taus)
+    for _ in range(150):
+        m = random.randint(2, 5)
+        n = random.randint(1, 8)
+        p = sorted([F(random.randint(0, 30), random.randint(1, 3)) for _ in range(n)], reverse=True)
+        c_opt = opt_states(p, m)
+        for s in branches(p, m):
+            certificates(p, s, m, c_opt)
+    print("the critical job's certificates and the other-machine bound replayed on the sweep and random instances")
+
+
+def fixed_count():
+    """Graham's jobs followed by r jobs of a common length eps < 1/r: every LPT branch has makespan 4m - 1 and the
+    optimum is 3m + ceil(r/m) eps (so the ratio tends to 4/3 - 1/(3m) with eps, for every fixed n = 2m + 1 + r); a
+    times Graham's jobs followed by r unit jobs: LPT max((4m - 1) a, 3ma + ceil(r/m)) on every branch, optimum
+    3ma + ceil(r/m); the five-machine instance 90, 90, 80, 80, 70, 70, 60, 60, 50, 50, 50, 1: LPT 190 on every
+    branch, optimum 151, and 190/151 exceeds 4/3 - 1/(3(m - 1)) = 5/4."""
+    for m in range(2, 5):
+        for r in range(1, 5):
+            eps = F(1, 2 * r)
+            p = graham_jobs(m) + [eps] * r
+            check(f"small tail antitone m={m} r={r}", all(p[j] >= p[j + 1] for j in range(len(p) - 1)))
+            check(f"small tail LPT 4m - 1 on every branch m={m} r={r}",
+                  all(makespan(p, s, m) == 4 * m - 1 for s in branches(p, m)))
+            check(f"small tail optimum m={m} r={r}", opt_states(p, m) == 3 * m + (-(-r // m)) * eps)
+    for m in range(2, 5):
+        for a in range(1, 4):
+            for r in range(0, 9):
+                p = [a * g for g in graham_jobs(m)] + [F(1)] * r
+                bs = branches(p, m) if r <= 3 else [lowest_index(p, m)]
+                want = max((4 * m - 1) * a, 3 * m * a + (-(-r // m)))
+                check(f"unit padding LPT m={m} a={a} r={r}", all(makespan(p, s, m) == want for s in bs))
+                check(f"unit padding optimum m={m} a={a} r={r}", opt_states(p, m) == 3 * m * a + (-(-r // m)))
+    p = [F(x) for x in (90, 90, 80, 80, 70, 70, 60, 60, 50, 50, 50, 1)]
+    check("five machines: LPT 190 on every branch", all(makespan(p, s, 5) == 190 for s in branches(p, 5)))
+    check("five machines: optimum 151", opt_states(p, 5) == 151)
+    check("five machines: 190/151 > 5/4", F(190, 151) > F(5, 4))
+    print("the fixed-count families and the five-machine instance replayed")
+
+
 if __name__ == "__main__":
     sweep()
     random_instances()
@@ -303,6 +475,9 @@ if __name__ == "__main__":
     unit_family()
     remark()
     lifted()
+    critical_sweep()
+    dosa_sweep()
+    fixed_count()
     print(f"{CHECKS} checks, {len(FAILS)} failures")
     print("VERDICT: PASS" if not FAILS else "VERDICT: FAIL")
     sys.exit(0 if not FAILS else 1)
