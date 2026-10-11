@@ -1,0 +1,35 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "GrahamLPT.exists_isListSchedule",
+    "GrahamLPT.exists_isLPTSchedule",
+    "GrahamLPT.optMakespan_le",
+    "GrahamLPT.exists_makespan_eq_optMakespan",
+    "GrahamLPT.load_le_makespan",
+    "GrahamLPT.le_makespan_of_nonneg",
+    "GrahamLPT.sum_le_mul_makespan",
+    "GrahamLPT.makespan_comp",
+    "GrahamLPT.listSchedule_bound",
+    "GrahamLPT.listSchedule_le_optMakespan",
+    "GrahamLPT.unitJobs_optMakespan",
+    "GrahamLPT.unitJobs_listSchedule_makespan",
+    "GrahamLPT.isLeast_listSchedule_ratio",
+    "GrahamLPT.lpt_bound",
+    "GrahamLPT.lpt_le_optMakespan",
+    "GrahamLPT.lpt_optimal_of_third_lt",
+    "GrahamLPT.lpt_eq_optMakespan_of_third_lt",
+    "GrahamLPT.grahamJobs_antitone",
+    "GrahamLPT.grahamJobs_optMakespan",
+    "GrahamLPT.grahamJobs_exists_optimal_listSchedule",
+    "GrahamLPT.grahamJobs_lpt_makespan",
+    "GrahamLPT.isLeast_lpt_ratio"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}
