@@ -8,7 +8,7 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
 1. **The ground floor** (`GrahamLPT/Basic.lean`). `loadBefore` at `0` is `0` and grows by `p k` on `σ k` at step `k`
    (`bs_loadBefore_zero`, `bs_loadBefore_succ`); at or beyond `n` it is the load (`bs_loadBefore_of_le`); the loads before
    `k` sum to the lengths of the jobs before `k` and the loads to the total (`bs_sum_loadBefore`, `bs_sum_load`, by
-   `Finset.sum_fiberwise`); for nonnegative lengths `loadBefore` is nonnegative, monotone in the cutoff and at most the load
+   `Finset.sum_comm`); for nonnegative lengths `loadBefore` is nonnegative, monotone in the cutoff and at most the load
    (`bs_loadBefore_mono`, `bs_loadBefore_le_load`); a machine with no job has load `0`
    (`bs_load_eq_zero`, `bs_loadBefore_eq_zero`) and a machine with a job has a last job `k`, its load being
    `loadBefore p σ k i + p k` (`bs_exists_last_job_before` by `Finset.exists_max_image` on the fiber, then
@@ -156,16 +156,16 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
    Write `t := p_k = T/3`, `δ := t/m`; the equality gives `L_k = 3t − δ =: A`. Every job before `k` is at least `t`;
    each machine of `σ` holds, among the jobs before `k`, at least one (`A > 0`), at most two (three would exceed `A`),
    and not exactly one (a single job of length `A` would sit alone on its `τ`-machine, whose load is `T > A`, since every
-   other job exceeds `T − A = δ`): so exactly two, and `k = 2m`, `n = 2m + 1`. A job before `k` and its partner sum to
+   other job exceeds `T − A = δ`): so exactly two, and `k = 2m`, `n = 2m + 1` (`eq_card_pos`, `eq_card_le_two`, `eq_card_ne_one`, `eq_card_fiber_two`, `eq_n_eq`). A job before `k` and its partner sum to
    `A`, so every job lies in `[t, 2t − δ]`; each machine of `τ` therefore holds two jobs summing to `3t` or three jobs
-   of length `t`, and since `2m + 1` is odd some machine holds a triple. Counting the jobs of each length `x` before
+   of length `t`, and since `2m + 1` is odd some machine holds a triple (`eq_tau_cases`, `eq_exists_three`). Counting the jobs of each length `x` before
    `k` (`c' x`) and overall (`c x = c' x + [x = t]`): the `σ`-pairs give `c' x = c' (A − x)` for every `x`, the
-   `τ`-pairs give `c x = c (3t − x)` for `x ∉ {t, 2t}` (the triple contributes nothing there); along the chain
+   `τ`-pairs give `c x = c (3t − x)` for `x ∉ {t, 2t}` (the triple contributes nothing there; `eq_count_sigma`, `eq_count_tau`); along the chain
    `t + iδ ↦ 2t − iδ ↦ t + (i − 1)δ` these give `c' (t + iδ) = c' t` for `0 ≤ i < m`, with `c' t ≥ 2` from the triple
-   and `m · c' t ≤ 2m` from the `m` disjoint fibers, so each is `2` and they exhaust the `2m` jobs: the lengths are
-   `t` three times and `t + iδ` twice for `1 ≤ i < m`, the fiber counts of `δ · grahamJobs m`. Two nonincreasing
+   and `m · c' t ≤ 2m` from the `m` disjoint fibers, so each is `2` and they exhaust the `2m` jobs (`eq_chain_step`, `eq_chain`, `eq_step6`): the lengths are
+   `t` three times and `t + iδ` twice for `1 ≤ i < m`, the fiber counts of `δ · grahamJobs m` (`eq_grahamJobs_fiber`, `eq_count_eq`). Two nonincreasing
    functions on `Fin (2m + 1)` with the same fiber counts are equal (`List.ofFn` of each is sorted and the two are
-   permutations of each other: `Fin.univ_val_map`, `Multiset.count_map`, `List.Perm.eq_of_sortedGE`), so
+   permutations of each other: `Fin.univ_val_map`, `Multiset.count_map`, `List.Perm.eq_of_sortedGE`; `eq_antitone_eq_of_count`), so
    `p = δ · grahamJobs m` with `a := δ = T/(3m)`. *The LPT form* (`graham_of_lpt_eq_bound`): the sorting permutation
    `π` transports the equality to `p ∘ π` (`makespan_comp`, `gs_optMakespan_comp`); the sorted form gives `a`,
    `h : n = 2m + 1` and `p (π j) = a · grahamJobs m (Fin.cast h j)`, and `e := π.symm.trans (finCongr h)`. The two-way

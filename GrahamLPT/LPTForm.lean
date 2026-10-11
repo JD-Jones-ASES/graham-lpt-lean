@@ -16,7 +16,7 @@ namespace GrahamLPT
 open Finset
 
 
-/-- Dósa's theorem for LPT schedules: on `m ≥ 2` machines, an LPT schedule of a positive instance attains Graham's
+/-- Dósa's theorem for LPT schedules: on `m ≥ 2` machines, an LPT schedule of a nonempty positive instance attains Graham's
 bound against the optimum only when the instance is a positive multiple of Graham's `2m + 1` jobs in some order. -/
 theorem graham_of_lpt_eq_bound_internal {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ) (hp : ∀ j, 0 < p j)
     (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (heq : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) :
@@ -32,7 +32,7 @@ theorem graham_of_lpt_eq_bound_internal {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (h
   simp only [Function.comp_apply, Equiv.apply_symm_apply] at hj
   exact hj
 
-/-- Graham's example is the only tight one (Dósa 2004): for a positive instance on `m ≥ 2` machines, some LPT
+/-- Graham's example is the only tight one (Dósa 2004): for a nonempty positive instance on `m ≥ 2` machines, some LPT
 schedule attains Graham's bound `3m · C(σ) = (4m − 1) · optMakespan` if and only if the instance is a positive
 multiple of Graham's `2m + 1` jobs in some order (and then every LPT schedule attains it,
 `lpt_eq_bound_of_graham`). -/
@@ -47,7 +47,7 @@ theorem lpt_eq_bound_iff_graham_internal {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (
     obtain ⟨σ, hσ⟩ := exists_isLPTSchedule_internal (m := m) p
     exact ⟨σ, hσ, lpt_eq_bound_of_graham_internal p a ha e he σ hσ⟩
 
-/-- With any number of jobs other than `2m + 1`, no LPT schedule of a positive instance on `m ≥ 2` machines attains
+/-- With any number of jobs other than `2m + 1`, no LPT schedule of a nonempty positive instance on `m ≥ 2` machines attains
 Graham's bound: the inequality is strict. -/
 theorem lpt_lt_bound_of_card_ne_internal {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (hn' : n ≠ 2 * m + 1)
     (p : Fin n → ℝ) (hp : ∀ j, 0 < p j) (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) :

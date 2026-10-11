@@ -67,10 +67,10 @@ This file states, and `Solution.lean` proves (kernel-only):
   Proposition 4, proved here from Chen's property);
 * Graham's example is the only tight one (G. Dósa, *Graham's example is the only tight one for P||Cmax*, Annales
   Univ. Sci. Budapest. Sect. Math. 47 (2004) 207–210, Theorem 2): every positive multiple of Graham's `2m + 1` jobs,
-  in any order, attains the bound (`lpt_eq_bound_of_graham`); for positive lengths on `m ≥ 2` machines, a list
-  schedule of a nonincreasing instance attains `3m · C(σ) = (4m − 1) · optMakespan` only when `n = 2m + 1` and the
-  instance is a positive multiple of `grahamJobs m` (`graham_of_listSchedule_eq_bound`), an LPT schedule of any
-  instance only when the instance is a positive multiple of Graham's jobs in some order (`graham_of_lpt_eq_bound`,
+  in any order, attains the bound (`lpt_eq_bound_of_graham`); for a nonempty positive instance on `m ≥ 2` machines, a list
+  schedule of it in nonincreasing order attains `3m · C(σ) = (4m − 1) · optMakespan` only when `n = 2m + 1` and the
+  instance is a positive multiple of `grahamJobs m` (`graham_of_listSchedule_eq_bound`), an LPT schedule of it in any
+  order only when the instance is a positive multiple of Graham's jobs in some order (`graham_of_lpt_eq_bound`,
   `lpt_eq_bound_iff_graham`), and with any number of jobs other than `2m + 1` the inequality is strict
   (`lpt_lt_bound_of_card_ne`);
 * a fixed number of jobs: for every `n ≥ 2m + 1`, `4/3 − 1/(3m)` is the supremum of `C(σ)/optMakespan` over the LPT
@@ -327,7 +327,7 @@ theorem lpt_eq_bound_of_graham {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (a : �
     (e : Fin n ≃ Fin (2 * m + 1)) (he : ∀ j, p j = a * grahamJobs m (e j)) (σ : Fin n → Fin m)
     (hσ : IsLPTSchedule p σ) : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p := sorry
 
-/-- Dósa's theorem (2004), the sorted form: a list schedule of a nonincreasing positive `p` on `m ≥ 2` machines
+/-- Dósa's theorem (2004), the sorted form: a list schedule of a nonempty nonincreasing positive `p` on `m ≥ 2` machines
 attains Graham's bound against the optimum only for Graham's instance: then `n = 2m + 1` and `p` is a positive
 multiple of `grahamJobs m`. -/
 theorem graham_of_listSchedule_eq_bound {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ)
@@ -335,13 +335,13 @@ theorem graham_of_listSchedule_eq_bound {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (h
     (heq : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) :
     ∃ (a : ℝ) (h : n = 2 * m + 1), 0 < a ∧ ∀ j, p j = a * grahamJobs m (Fin.cast h j) := sorry
 
-/-- Dósa's theorem for LPT schedules: on `m ≥ 2` machines, an LPT schedule of a positive instance attains Graham's
+/-- Dósa's theorem for LPT schedules: on `m ≥ 2` machines, an LPT schedule of a nonempty positive instance attains Graham's
 bound against the optimum only when the instance is a positive multiple of Graham's `2m + 1` jobs in some order. -/
 theorem graham_of_lpt_eq_bound {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ) (hp : ∀ j, 0 < p j)
     (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (heq : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) :
     ∃ (a : ℝ) (e : Fin n ≃ Fin (2 * m + 1)), 0 < a ∧ ∀ j, p j = a * grahamJobs m (e j) := sorry
 
-/-- Graham's example is the only tight one (Dósa 2004): for a positive instance on `m ≥ 2` machines, some LPT
+/-- Graham's example is the only tight one (Dósa 2004): for a nonempty positive instance on `m ≥ 2` machines, some LPT
 schedule attains Graham's bound `3m · C(σ) = (4m − 1) · optMakespan` if and only if the instance is a positive
 multiple of Graham's `2m + 1` jobs in some order (and then every LPT schedule attains it,
 `lpt_eq_bound_of_graham`). -/
@@ -350,7 +350,7 @@ theorem lpt_eq_bound_iff_graham {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < 
     (∃ σ : Fin n → Fin m, IsLPTSchedule p σ ∧ 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) ↔
       ∃ (a : ℝ) (e : Fin n ≃ Fin (2 * m + 1)), 0 < a ∧ ∀ j, p j = a * grahamJobs m (e j) := sorry
 
-/-- With any number of jobs other than `2m + 1`, no LPT schedule of a positive instance on `m ≥ 2` machines attains
+/-- With any number of jobs other than `2m + 1`, no LPT schedule of a nonempty positive instance on `m ≥ 2` machines attains
 Graham's bound: the inequality is strict. -/
 theorem lpt_lt_bound_of_card_ne {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (hn' : n ≠ 2 * m + 1)
     (p : Fin n → ℝ) (hp : ∀ j, 0 < p j) (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) :
@@ -360,7 +360,7 @@ theorem lpt_lt_bound_of_card_ne {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < 
 
 /-- For every fixed number `n ≥ 2m + 1` of jobs, Graham's constant `4/3 − 1/(3m)` is still the supremum of
 `C(σ)/optMakespan` over the LPT schedules of the positive instances with `n` jobs: Graham's jobs followed by
-`n − 2m − 1` jobs of a common small length approach it (and attain it only at `n = 2m + 1`,
+`n − 2m − 1` jobs of a common small length approach it (and, for `m ≥ 2`, attain it only at `n = 2m + 1`,
 `lpt_lt_bound_of_card_ne`). -/
 theorem isLUB_lpt_ratio_of_card {m n : ℕ} [NeZero m] (hn : 2 * m + 1 ≤ n) :
     IsLUB {r : ℝ | ∃ (p : Fin n → ℝ) (σ : Fin n → Fin m), (∀ j, 0 < p j) ∧ IsLPTSchedule p σ ∧

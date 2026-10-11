@@ -30,7 +30,7 @@ project:
     load are at most the makespan, relabeling the jobs preserves the makespan); Graham's omega_0, the least finishing
     time over all lists, equals the optimum over all assignments (every assignment is matched or improved by a list
     schedule in the order of its start times), so the bounds against every assignment are his; for his instance the
-    optimum is attained by an explicit list; and the third of the optimality theorem is sharp (on three machines
+    optimum is attained by an explicit list; and the third of the optimality theorem cannot be weakened (on three machines
     9, 5, 5, 4, 4, 4, each job at least a third of the optimum 12, has an LPT schedule of makespan 13, so n <= 2m jobs
     do not make LPT optimal; Graham's 1972 survey prints Spencer's 6, 3, 3, 2, 2, 2 for the same purpose); and the
     position of a job on its machine: the (c + 1)-th job k placed on a machine of a list schedule of a nonincreasing p
@@ -43,7 +43,20 @@ project:
     LPT bound is by counting, not by his exchange argument: with k the job ending a heaviest machine, the average-load
     bound settles 3 p_k <= C(tau), and otherwise a count of the jobs up to k (every machine of tau holds at most two
     of them, those at least as long as the least load sit alone, each single-job machine of sigma contributes one)
-    shows that k's machine ends by C(tau). Twenty-nine compared statements over eight fully specified definitions; the
+    shows that k's machine ends by C(tau). Further: for a job k completing at the makespan of a list schedule of a
+    nonincreasing p, the smaller of C(sigma) and 3 p_k is at most C(tau) for every tau, and C(sigma) <= 3 p_k certifies
+    optimality; equality 3m C(sigma) = (4m - 1) C(tau) on m >= 2 machines forces 3 p_k = C(tau), equal loads before k,
+    every load of tau equal to C(tau) and no positive job after k; Della Croce-Scatamacchia's Proposition 4,
+    q (m - 1) C(sigma) <= ((q + 1)(m - 1) - 1) C(tau) when another machine holds q jobs before k and q + 2 <= m, proved
+    from Chen's property; Dósa's theorem (2004, Theorem 2: Graham's example is the only tight one): every positive
+    multiple of Graham's 2m + 1 jobs in any order attains the bound, and for a nonempty positive instance on m >= 2
+    machines a list schedule in nonincreasing order, or an LPT schedule in any order, attains
+    3m C(sigma) = (4m - 1) optMakespan only when the instance is a positive multiple of Graham's jobs, so the
+    inequality is strict for every number of jobs other than 2m + 1; and for every fixed n >= 2m + 1 the constant
+    4/3 - 1/(3m) is the supremum (IsLUB) of C(sigma)/optMakespan over the LPT schedules of the positive instances with
+    n jobs, approached by Graham's jobs followed by small jobs (Dósa's Remark 1 asserts a strict gap for every
+    n != 2m + 1, which can therefore hold at most for n < 2m + 1, not formalized here). Thirty-nine compared
+    statements over eight fully specified definitions; the
     finite facts behind every statement are replayed exactly in the standard library by scripts/check_lpt.py.
     As of 2026-10-11 no kernel-checked proof of the 4/3 - 1/(3m) bound, of either equality family or of the
     optimality statement was located in the Palomar registry, Mathlib, formal-conjectures, openai/math,
@@ -287,8 +300,8 @@ status:
     form, the optimality of LPT when every job exceeds a third of the makespan of tau and of the optimum, Graham's
     family in nonincreasing order with optimum 3m attained by a list schedule and LPT makespan 4m - 1 for every m,
     and 4/3 - 1/(3m) as the least constant. The optimum over lists (2): every assignment is matched or improved by
-    a list schedule in the order of its start times, so Graham's omega_0 equals optMakespan (IsLeast). The third is
-    sharp (3): on three machines 9, 5, 5, 4, 4, 4 has an LPT schedule of makespan 13 and optimum 12, each job at least
+    a list schedule in the order of its start times, so Graham's omega_0 equals optMakespan (IsLeast). The third
+    cannot be weakened (3): on three machines 9, 5, 5, 4, 4, 4 has an LPT schedule of makespan 13 and optimum 12, each job at least
     a third of 12. The position of a job on its machine (2): Chen's property (c + 1) p_k <= C(tau) for the
     (c + 1)-th job k on a machine of a list schedule of a nonincreasing p, and the Coffman-Sethi form
     q m C(sigma) <= ((q + 1) m - 1) C(tau) for a machine with q jobs attaining the makespan of an LPT schedule.
@@ -507,7 +520,7 @@ status:
 automation:
   methods:
     - method: "agent"
-      models: ["Claude Opus 5.5 (Anthropic)", "Claude Fable 5.1 (Anthropic)"]
+      models: ["Claude Opus 5.5 (Anthropic)", "Claude Fable 5.1 (Anthropic)", "GPT (OpenAI)"]
       framework: "Claude Code with parallel subagents"
       tool_setup: >-
         The project was directed by its author. Claude (Anthropic) in Claude Code was used throughout: the
@@ -519,15 +532,8 @@ automation:
         pinned by the committed manifest and lake update is never run; there are no GitHub Actions workflows. There
         is no native_decide and no decide +kernel: the proofs are Finset arithmetic over the reals and the natural
         numbers (fibers of assignments, sums over them, cardinalities), closed by linarith, omega, simp and ring.
-    - method: "agent"
-      models: ["GPT (OpenAI)"]
-      framework: "a pre-submission consult"
-      tool_setup: >-
-        GPT (OpenAI) was used once, for a pre-submission consult on the tree at bbb9373 (11 October 2026): a reading
-        of the proofs and the documents, three corrections to VERIFICATION.md's description of the replay, and
-        proposals for further statements. Nothing of it entered the tree unchecked: the corrections were re-derived
-        against the scripts, the proposed statements were re-proved here by the Claude lanes under the full
-        verification gate, and the finite facts were replayed by scripts/check_lpt.py.
+        GPT (OpenAI) was used once, for a pre-submission consult on the tree at bbb9373 (11 October 2026); its
+        proposals were checked here before adoption.
   spend_usd: "not tracked"
 
 fidelity:
@@ -557,7 +563,7 @@ fidelity:
     The IsLeast statements range over every number of jobs n, every nonnegative instance on m machines, every list
     (resp. LPT) schedule and every assignment. The critical job is a job k with loadBefore p sigma k (sigma k) + p k
     equal to the makespan (a hypothesis, not a construction). Dósa's theorem is stated for strictly positive lengths
-    (a zero job appended to Graham's instance keeps the ratio), with m >= 2 (on one machine every instance has ratio
+    (a zero job appended to Graham's instance keeps the ratio; replayed, not formalized), with m >= 2 (on one machine every instance has ratio
     1) and with at least one job; "the instance is Graham's" means p j = a * grahamJobs m (e j) for some a > 0 and
     some equivalence e : Fin n ~ Fin (2m + 1) (in the sorted form, n = 2m + 1 and e is Fin.cast). The supremum for a
     fixed number of jobs is an IsLUB statement over the set of real ratios C(sigma)/optMakespan of the LPT schedules
@@ -567,13 +573,12 @@ review:
   status: "self-assessed"
   notes: >-
     No independent human expert review and no source-author endorsement is claimed; AI agents wrote the proofs and
-    audited them in separate passes, a pre-submission consult by GPT (OpenAI) read the tree at bbb9373 and its
-    proposals were checked here before adoption, the statements were checked against the printed pages of the texts read (Graham
+    audited them in separate passes, the statements were checked against the printed pages of the texts read (Graham
     1966, Graham 1972, Lenstra-Shmoys, Della Croce-Scatamacchia, Dósa 2004) by a separate reading pass, the finite facts behind every statement are replayed exactly by scripts/check_lpt.py in
     the standard library, and VERIFICATION.md states what is checked and what is not. Mechanical correctness and
     agreement of formal statements do not establish significance: the bounds and both instances are Graham's; what this development adds is the relation form over every tie-breaking,
     the counting proof of the key step in place of the exchange argument, the IsLeast forms, the optimality theorem
-    as a statement with its sharpness instance, the equality of the optimum over lists with the optimum over
+    as a statement with its witness instance, the equality of the optimum over lists with the optimum over
     assignments, the explicit list attaining the optimum of Graham's instance, and the pair-of-machines invariant
     behind Chen's property (Chen's and Coffman-Sethi's papers were not read; their statements are taken from Della
     Croce-Scatamacchia 2020), the critical job's certificates, the counting proof of Dósa's theorem with its
@@ -715,7 +720,7 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "The jobs `9, 5, 5, 4, 4, 4` have optimal makespan `12` on three machines (`9 | 5, 5 | 4, 4, 4`)."
-    - source: "This development (the strict third of the optimality theorem is sharp; n <= 2m does not make LPT optimal; cf. Graham 1972, Figure 16)"
+    - source: "This development (the strict third of the optimality theorem cannot be weakened; n <= 2m does not make LPT optimal; cf. Graham 1972, Figure 16)"
       lean: "GrahamLPT.lpt_third_le_not_optimal"
       module: "Solution"
       status: "proved"
@@ -735,7 +740,7 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "The critical job's certificate: in a list schedule of a nonincreasing `p`, for a job `k` whose completion time is the makespan, the smaller of `C(σ)` and `3 p_k` is at most `C(τ)` for every assignment `τ` (the key lemma read as a lower bound on every comparison schedule)."
-    - source: "This development (the observed-third certificate; no printed statement; nearest print Della Croce-Scatamacchia 2020, Proposition 1 (2), optimality when the critical job exceeds a third of the optimum, cited there to Pinedo)"
+    - source: "This development (the observed-third certificate; no printed statement; nearest print Della Croce-Scatamacchia 2020, Proposition 1 (2), optimality when the critical job exceeds a third of the optimum)"
       lean: "GrahamLPT.lpt_eq_optMakespan_of_critical_third"
       module: "Solution"
       status: "proved"
@@ -759,24 +764,24 @@ alignment:
       lean: "GrahamLPT.graham_of_listSchedule_eq_bound"
       module: "Solution"
       status: "proved"
-      note: "Dósa's theorem (2004), the sorted form: a list schedule of a nonincreasing positive `p` on `m ≥ 2` machines attains Graham's bound against the optimum only for Graham's instance: then `n = 2m + 1` and `p` is a positive multiple of `grahamJobs m`."
+      note: "Dósa's theorem (2004), the sorted form: a list schedule of a nonempty nonincreasing positive `p` on `m ≥ 2` machines attains Graham's bound against the optimum only for Graham's instance: then `n = 2m + 1` and `p` is a positive multiple of `grahamJobs m`."
     - source: "Dósa 2004, Theorem 2, for LPT schedules of an instance in any order (the relabeling by the sorting permutation)"
       lean: "GrahamLPT.graham_of_lpt_eq_bound"
       module: "Solution"
       status: "proved"
-      note: "Dósa's theorem for LPT schedules: on `m ≥ 2` machines, an LPT schedule of a positive instance attains Graham's bound against the optimum only when the instance is a positive multiple of Graham's `2m + 1` jobs in some order."
+      note: "Dósa's theorem for LPT schedules: on `m ≥ 2` machines, an LPT schedule of a nonempty positive instance attains Graham's bound against the optimum only when the instance is a positive multiple of Graham's `2m + 1` jobs in some order."
     - source: "Dósa 2004, Theorem 2 (the only-if half) with the p. 208 computation (the if half), as a two-way statement for positive instances on m >= 2 machines"
       lean: "GrahamLPT.lpt_eq_bound_iff_graham"
       module: "Solution"
       status: "proved"
-      note: "Graham's example is the only tight one (Dósa 2004): for a positive instance on `m ≥ 2` machines, some LPT schedule attains Graham's bound `3m · C(σ) = (4m − 1) · optMakespan` if and only if the instance is a positive multiple of Graham's `2m + 1` jobs in some order (and then every LPT schedule attains it, `lpt_eq_bound_of_graham`)."
+      note: "Graham's example is the only tight one (Dósa 2004): for a nonempty positive instance on `m ≥ 2` machines, some LPT schedule attains Graham's bound `3m · C(σ) = (4m − 1) · optMakespan` if and only if the instance is a positive multiple of Graham's `2m + 1` jobs in some order (and then every LPT schedule attains it, `lpt_eq_bound_of_graham`)."
     - source: "Dósa 2004, Theorem 2, the corollary for every number of jobs other than 2m + 1 (Della Croce-Scatamacchia 2020, pp. 8-9, state a uniform gap only under their convention that the critical job is last)"
       lean: "GrahamLPT.lpt_lt_bound_of_card_ne"
       module: "Solution"
       status: "proved"
-      note: "With any number of jobs other than `2m + 1`, no LPT schedule of a positive instance on `m ≥ 2` machines attains Graham's bound: the inequality is strict."
+      note: "With any number of jobs other than `2m + 1`, no LPT schedule of a nonempty positive instance on `m ≥ 2` machines attains Graham's bound: the inequality is strict."
     - source: "This development (no printed statement: for every fixed n >= 2m + 1 the supremum of the ratio over positive instances with n jobs is 4/3 - 1/(3m), approached by Graham's jobs followed by small jobs; Dósa 2004, Remark 1, p. 208, asserts a strict gap for every n != 2m + 1)"
       lean: "GrahamLPT.isLUB_lpt_ratio_of_card"
       module: "Solution"
       status: "proved"
-      note: "For every fixed number `n ≥ 2m + 1` of jobs, Graham's constant `4/3 − 1/(3m)` is still the supremum of `C(σ)/optMakespan` over the LPT schedules of the positive instances with `n` jobs: Graham's jobs followed by `n − 2m − 1` jobs of a common small length approach it (and attain it only at `n = 2m + 1`, `lpt_lt_bound_of_card_ne`)."
+      note: "For every fixed number `n ≥ 2m + 1` of jobs, Graham's constant `4/3 − 1/(3m)` is still the supremum of `C(σ)/optMakespan` over the LPT schedules of the positive instances with `n` jobs: Graham's jobs followed by `n − 2m − 1` jobs of a common small length approach it (and, for `m ≥ 2`, attain it only at `n = 2m + 1`, `lpt_lt_bound_of_card_ne`)."

@@ -32,8 +32,8 @@ run_cmd do
         unless allowed.contains ax do
           rejected := rejected + 1
           logError m!"Unexpected axiom dependency: {name} -> {ax}"
-  unless checked ≥ 120 do
-    logError m!"Axiom audit matched only {checked} project constants; expected at least 120"
+  unless checked ≥ 250 do
+    logError m!"Axiom audit matched only {checked} project constants; expected at least 250"
   for n in [`GrahamLPT.exists_isListSchedule, `GrahamLPT.exists_isLPTSchedule,
       `GrahamLPT.optMakespan_le, `GrahamLPT.exists_makespan_eq_optMakespan,
       `GrahamLPT.load_le_makespan, `GrahamLPT.le_makespan_of_nonneg,

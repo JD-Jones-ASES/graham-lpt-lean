@@ -484,7 +484,7 @@ theorem eq_count_eq {m : ℕ} (hm : 0 < m) (p : Fin (2 * m + 1) → ℝ) (k : Fi
       exact hx i hi hj.symm
     rw [h1, h2]
 
-/-- Dósa's theorem (2004), the sorted form: a list schedule of a nonincreasing positive `p` on `m ≥ 2` machines
+/-- Dósa's theorem (2004), the sorted form: a list schedule of a nonempty nonincreasing positive `p` on `m ≥ 2` machines
 attains Graham's bound against the optimum only for Graham's instance: then `n = 2m + 1` and `p` is a positive
 multiple of `grahamJobs m`. -/
 theorem graham_of_listSchedule_eq_bound_internal {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ)

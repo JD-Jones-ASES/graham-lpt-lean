@@ -62,10 +62,10 @@ proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names 
   Proposition 4, proved there by a linear program, here from Chen's property);
 - **Graham's example is the only tight one** (G. Dósa, *Graham's example is the only tight one for P||Cmax*, Annales
   Univ. Sci. Budapest. Sect. Math. 47 (2004) 207–210, Theorem 2): every positive multiple of Graham's `2m + 1` jobs, in
-  any order, attains the bound (`lpt_eq_bound_of_graham`); conversely, for positive lengths on `m ≥ 2` machines, a list
-  schedule of a nonincreasing instance attains `3m · C(σ) = (4m − 1) · optMakespan` only when `n = 2m + 1` and the
-  instance is a positive multiple of `grahamJobs m` (`graham_of_listSchedule_eq_bound`), and an LPT schedule of any
-  instance only when the instance is a positive multiple of Graham's jobs in some order (`graham_of_lpt_eq_bound`,
+  any order, attains the bound (`lpt_eq_bound_of_graham`); conversely, for a nonempty positive instance on `m ≥ 2` machines, a list
+  schedule of it in nonincreasing order attains `3m · C(σ) = (4m − 1) · optMakespan` only when `n = 2m + 1` and the
+  instance is a positive multiple of `grahamJobs m` (`graham_of_listSchedule_eq_bound`), and an LPT schedule of it in any
+  order only when the instance is a positive multiple of Graham's jobs in some order (`graham_of_lpt_eq_bound`,
   `lpt_eq_bound_iff_graham`), so with any number of jobs other than `2m + 1` the inequality is strict
   (`lpt_lt_bound_of_card_ne`); proved by counting the jobs of each machine in the two schedules, not by Dósa's
   minimal-counterexample argument;
@@ -75,7 +75,7 @@ proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names 
   it can therefore hold at most for `n < 2m + 1`, which is not formalized here.
 
 Lengths are nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966 nonnegative ones) and
-positive in Dósa's theorem (a zero job appended to Graham's instance keeps the ratio). The proof of the LPT bound is by
+positive in Dósa's theorem (a zero job appended to Graham's instance keeps the ratio; replayed, not formalized). The proof of the LPT bound is by
 counting, not by his exchange argument: with `k` the job ending a heaviest machine, the average-load bound settles
 `3 p_k ≤ C(τ)`, and otherwise a count of the jobs up to `k` — every machine of `τ` holds at most two of them, those at
 least as long as the least load sit alone, each single-job machine of `σ` contributes one of them — shows that `k`'s
