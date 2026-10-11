@@ -404,26 +404,26 @@ theorem eq_grahamJobs_fiber (m i : ℕ) (hi : i < m) :
       ext j
       have hj := j.isLt
       simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_insert, Finset.mem_singleton,
-        Fin.ext_iff, Fin.val_mk]
+        Fin.ext_iff]
       unfold grahamJobs
       split_ifs with h
       · rw [eq_cast_iff]; omega
       · rw [eq_cast_iff']; omega
     rw [hfib, ite_eq_left rfl, Finset.card_insert_of_notMem, Finset.card_pair]
-    · simp only [Finset.mem_insert, Finset.mem_singleton, Ne, Fin.ext_iff, Fin.val_mk]; omega
-    · simp only [Finset.mem_insert, Finset.mem_singleton, Ne, Fin.ext_iff, Fin.val_mk]; omega
+    · simp only [Ne, Fin.ext_iff]; omega
+    · simp only [Finset.mem_insert, Finset.mem_singleton, Fin.ext_iff]; omega
   · have hfib : univ.filter (fun j : Fin (2 * m + 1) => grahamJobs m j = (m : ℝ) + i) =
         {(⟨2 * (m - 1 - i), by omega⟩ : Fin (2 * m + 1)), ⟨2 * (m - 1 - i) + 1, by omega⟩} := by
       ext j
       have hj := j.isLt
       simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_insert, Finset.mem_singleton,
-        Fin.ext_iff, Fin.val_mk]
+        Fin.ext_iff]
       unfold grahamJobs
       split_ifs with h
       · rw [eq_cast_iff]; omega
       · rw [eq_cast_iff']; omega
     rw [hfib, ite_eq_right hi0, Finset.card_pair]
-    simp only [Ne, Fin.ext_iff, Fin.val_mk]; omega
+    simp only [Ne, Fin.ext_iff]; omega
 
 /-- Every value of Graham's instance is `m + i` for some `i < m`. -/
 theorem eq_grahamJobs_lattice (m : ℕ) (hm : 1 ≤ m) (j : Fin (2 * m + 1)) :
