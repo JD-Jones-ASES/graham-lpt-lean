@@ -5,7 +5,7 @@ public import GrahamLPT.TightLPT
 /-!
 # GrahamScaled
 
-Scaling and relabeling of instances, and the sufficiency half of Dósa's theorem: every positive multiple of Graham's instance in any order attains the bound (ARCH.md §2). Lane `suff`; helpers carry the prefix `gs_`.
+Scaling and relabeling of instances, and the sufficiency half of Dósa's theorem: every positive multiple of Graham's instance in any order attains the bound. Helpers carry the prefix `gs_`.
 -/
 
 @[expose] public section

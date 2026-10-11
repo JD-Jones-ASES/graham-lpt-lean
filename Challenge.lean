@@ -284,4 +284,86 @@ theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j
     ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) * m * makespan p σ ≤
       (((univ.filter (fun j : Fin n => σ j = i)).card + 1) * m - 1) * makespan p τ := sorry
 
+/-! ## The critical job: certificates (30–33) -/
+
+/-- The critical job's certificate: in a list schedule of a nonincreasing `p`, for a job `k` whose completion time is
+the makespan, the smaller of `C(σ)` and `3 p_k` is at most `C(τ)` for every assignment `τ` (the key lemma read as a
+lower bound on every comparison schedule). -/
+theorem lpt_critical_min_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (hk : makespan p σ = loadBefore p σ k (σ k) + p k)
+    (τ : Fin n → Fin m) : min (makespan p σ) (3 * p k) ≤ makespan p τ := sorry
+
+/-- The observed-third certificate: when a critical job `k` is at least a third of the makespan it completes, the list
+schedule is optimal (`lpt_eq_optMakespan_of_third_lt` asks every job to exceed a third of the unknown optimum). -/
+theorem lpt_eq_optMakespan_of_critical_third {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
+    (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (h3 : makespan p σ ≤ 3 * p k) :
+    makespan p σ = optMakespan m p := sorry
+
+/-- Equality in Graham's LPT bound against `τ` on `m ≥ 2` machines, with `k` a critical job, forces the four
+inequalities of its proof to be equalities: `3 p_k = C(τ)`, every machine of `σ` carries the least load before `k`,
+every machine of `τ` carries exactly `C(τ)`, and every job after `k` has length `0`. -/
+theorem lpt_eq_bound_structure {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
+    (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (τ : Fin n → Fin m)
+    (heq : 3 * m * makespan p σ = (4 * m - 1) * makespan p τ) :
+    3 * p k = makespan p τ ∧ (∀ i, loadBefore p σ k i = loadBefore p σ k (σ k)) ∧
+      (∀ i, load p τ i = makespan p τ) ∧ ∀ j : Fin n, (k : ℕ) < j → p j = 0 := sorry
+
+/-- Della Croce–Scatamacchia's Proposition 4, from Chen's property: if a machine `i` other than the critical job's
+holds at least `q` jobs before the critical job `k`, and `q + 2 ≤ m`, then
+`q(m − 1) · C(σ) ≤ ((q + 1)(m − 1) − 1) · C(τ)` for every assignment `τ`. -/
+theorem lpt_bound_of_other_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (hk : makespan p σ = loadBefore p σ k (σ k) + p k)
+    (i : Fin m) (hi : i ≠ σ k) (q : ℕ) (hq : q ≤ (univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = i)).card)
+    (hqm : q + 2 ≤ m) (τ : Fin n → Fin m) :
+    (q : ℝ) * (m - 1) * makespan p σ ≤ ((q + 1) * (m - 1) - 1) * makespan p τ := sorry
+
+/-! ## Graham's example is the only tight one (Dósa 2004) (34–38) -/
+
+/-- Every positive multiple of Graham's instance, in any order, attains the bound: every LPT schedule has makespan
+`(4m − 1) a` against the optimum `3m a`. -/
+theorem lpt_eq_bound_of_graham {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (a : ℝ) (ha : 0 < a)
+    (e : Fin n ≃ Fin (2 * m + 1)) (he : ∀ j, p j = a * grahamJobs m (e j)) (σ : Fin n → Fin m)
+    (hσ : IsLPTSchedule p σ) : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p := sorry
+
+/-- Dósa's theorem (2004), the sorted form: a list schedule of a nonincreasing positive `p` on `m ≥ 2` machines
+attains Graham's bound against the optimum only for Graham's instance: then `n = 2m + 1` and `p` is a positive
+multiple of `grahamJobs m`. -/
+theorem graham_of_listSchedule_eq_bound {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ)
+    (hp : ∀ j, 0 < p j) (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ)
+    (heq : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) :
+    ∃ (a : ℝ) (h : n = 2 * m + 1), 0 < a ∧ ∀ j, p j = a * grahamJobs m (Fin.cast h j) := sorry
+
+/-- Dósa's theorem for LPT schedules: on `m ≥ 2` machines, an LPT schedule of a positive instance attains Graham's
+bound against the optimum only when the instance is a positive multiple of Graham's `2m + 1` jobs in some order. -/
+theorem graham_of_lpt_eq_bound {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ) (hp : ∀ j, 0 < p j)
+    (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (heq : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) :
+    ∃ (a : ℝ) (e : Fin n ≃ Fin (2 * m + 1)), 0 < a ∧ ∀ j, p j = a * grahamJobs m (e j) := sorry
+
+/-- Graham's example is the only tight one (Dósa 2004): for a positive instance on `m ≥ 2` machines, some LPT
+schedule attains Graham's bound `3m · C(σ) = (4m − 1) · optMakespan` if and only if the instance is a positive
+multiple of Graham's `2m + 1` jobs in some order (and then every LPT schedule attains it,
+`lpt_eq_bound_of_graham`). -/
+theorem lpt_eq_bound_iff_graham {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ)
+    (hp : ∀ j, 0 < p j) :
+    (∃ σ : Fin n → Fin m, IsLPTSchedule p σ ∧ 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) ↔
+      ∃ (a : ℝ) (e : Fin n ≃ Fin (2 * m + 1)), 0 < a ∧ ∀ j, p j = a * grahamJobs m (e j) := sorry
+
+/-- With any number of jobs other than `2m + 1`, no LPT schedule of a positive instance on `m ≥ 2` machines attains
+Graham's bound: the inequality is strict. -/
+theorem lpt_lt_bound_of_card_ne {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (hn' : n ≠ 2 * m + 1)
+    (p : Fin n → ℝ) (hp : ∀ j, 0 < p j) (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) :
+    3 * m * makespan p σ < (4 * m - 1) * optMakespan m p := sorry
+
+/-! ## The supremum for a fixed number of jobs (39) -/
+
+/-- For every fixed number `n ≥ 2m + 1` of jobs, Graham's constant `4/3 − 1/(3m)` is still the supremum of
+`C(σ)/optMakespan` over the LPT schedules of the positive instances with `n` jobs: Graham's jobs followed by
+`n − 2m − 1` jobs of a common small length approach it (and attain it only at `n = 2m + 1`,
+`lpt_lt_bound_of_card_ne`). -/
+theorem isLUB_lpt_ratio_of_card {m n : ℕ} [NeZero m] (hn : 2 * m + 1 ≤ n) :
+    IsLUB {r : ℝ | ∃ (p : Fin n → ℝ) (σ : Fin n → Fin m), (∀ j, 0 < p j) ∧ IsLPTSchedule p σ ∧
+      r = makespan p σ / optMakespan m p} (4 / 3 - 1 / (3 * m)) := sorry
+
 end GrahamLPT

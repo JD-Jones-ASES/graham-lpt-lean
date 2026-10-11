@@ -6,7 +6,7 @@ public import GrahamLPT.TightLPT
 /-!
 # FixedCount
 
-The supremum of the LPT ratio for a fixed number `n ≥ 2m + 1` of jobs: Graham's jobs followed by small jobs. Lane `fixed`; helpers carry the prefix `fc_`.
+The supremum of the LPT ratio for a fixed number `n ≥ 2m + 1` of jobs: Graham's jobs followed by small jobs. Helpers carry the prefix `fc_`.
 -/
 
 @[expose] public section

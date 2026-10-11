@@ -146,4 +146,62 @@ theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j
       (((univ.filter (fun j : Fin n => σ j = i)).card + 1) * m - 1) * makespan p τ :=
   lpt_bound_of_card_internal p hp σ hσ τ i hi
 
+theorem lpt_critical_min_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (hk : makespan p σ = loadBefore p σ k (σ k) + p k)
+    (τ : Fin n → Fin m) : min (makespan p σ) (3 * p k) ≤ makespan p τ :=
+  lpt_critical_min_le_internal p hp hanti σ hσ k hk τ
+
+theorem lpt_eq_optMakespan_of_critical_third {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
+    (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (h3 : makespan p σ ≤ 3 * p k) :
+    makespan p σ = optMakespan m p :=
+  lpt_eq_optMakespan_of_critical_third_internal p hp hanti σ hσ k hk h3
+
+theorem lpt_eq_bound_structure {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
+    (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (τ : Fin n → Fin m)
+    (heq : 3 * m * makespan p σ = (4 * m - 1) * makespan p τ) :
+    3 * p k = makespan p τ ∧ (∀ i, loadBefore p σ k i = loadBefore p σ k (σ k)) ∧
+      (∀ i, load p τ i = makespan p τ) ∧ ∀ j : Fin n, (k : ℕ) < j → p j = 0 :=
+  lpt_eq_bound_structure_internal hm p hp hanti σ hσ k hk τ heq
+
+theorem lpt_bound_of_other_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (hk : makespan p σ = loadBefore p σ k (σ k) + p k)
+    (i : Fin m) (hi : i ≠ σ k) (q : ℕ) (hq : q ≤ (univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = i)).card)
+    (hqm : q + 2 ≤ m) (τ : Fin n → Fin m) :
+    (q : ℝ) * (m - 1) * makespan p σ ≤ ((q + 1) * (m - 1) - 1) * makespan p τ :=
+  lpt_bound_of_other_card_internal p hp hanti σ hσ k hk i hi q hq hqm τ
+
+theorem lpt_eq_bound_of_graham {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (a : ℝ) (ha : 0 < a)
+    (e : Fin n ≃ Fin (2 * m + 1)) (he : ∀ j, p j = a * grahamJobs m (e j)) (σ : Fin n → Fin m)
+    (hσ : IsLPTSchedule p σ) : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p :=
+  lpt_eq_bound_of_graham_internal p a ha e he σ hσ
+
+theorem graham_of_listSchedule_eq_bound {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ)
+    (hp : ∀ j, 0 < p j) (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ)
+    (heq : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) :
+    ∃ (a : ℝ) (h : n = 2 * m + 1), 0 < a ∧ ∀ j, p j = a * grahamJobs m (Fin.cast h j) :=
+  graham_of_listSchedule_eq_bound_internal hm hn p hp hanti σ hσ heq
+
+theorem graham_of_lpt_eq_bound {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ) (hp : ∀ j, 0 < p j)
+    (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (heq : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) :
+    ∃ (a : ℝ) (e : Fin n ≃ Fin (2 * m + 1)), 0 < a ∧ ∀ j, p j = a * grahamJobs m (e j) :=
+  graham_of_lpt_eq_bound_internal hm hn p hp σ hσ heq
+
+theorem lpt_eq_bound_iff_graham {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (p : Fin n → ℝ)
+    (hp : ∀ j, 0 < p j) :
+    (∃ σ : Fin n → Fin m, IsLPTSchedule p σ ∧ 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p) ↔
+      ∃ (a : ℝ) (e : Fin n ≃ Fin (2 * m + 1)), 0 < a ∧ ∀ j, p j = a * grahamJobs m (e j) :=
+  lpt_eq_bound_iff_graham_internal hm hn p hp
+
+theorem lpt_lt_bound_of_card_ne {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < n) (hn' : n ≠ 2 * m + 1)
+    (p : Fin n → ℝ) (hp : ∀ j, 0 < p j) (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) :
+    3 * m * makespan p σ < (4 * m - 1) * optMakespan m p :=
+  lpt_lt_bound_of_card_ne_internal hm hn hn' p hp σ hσ
+
+theorem isLUB_lpt_ratio_of_card {m n : ℕ} [NeZero m] (hn : 2 * m + 1 ≤ n) :
+    IsLUB {r : ℝ | ∃ (p : Fin n → ℝ) (σ : Fin n → Fin m), (∀ j, 0 < p j) ∧ IsLPTSchedule p σ ∧
+      r = makespan p σ / optMakespan m p} (4 / 3 - 1 / (3 * m)) :=
+  isLUB_lpt_ratio_of_card_internal hn
+
 end GrahamLPT

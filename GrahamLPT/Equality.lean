@@ -6,7 +6,7 @@ public import GrahamLPT.TightLPT
 /-!
 # Equality
 
-The necessity half of Dósa's theorem, sorted form: equality forces `n = 2m + 1` and Graham's instance up to a positive scale (ARCH.md §3, the counting route). Lane `neccount`; helpers carry the prefix `eq_`.
+The necessity half of Dósa's theorem, sorted form: equality forces `n = 2m + 1` and Graham's instance up to a positive scale, by counting the jobs of each length on each machine of the two schedules. Helpers carry the prefix `eq_`.
 -/
 
 @[expose] public section

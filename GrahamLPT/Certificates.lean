@@ -7,7 +7,7 @@ public import GrahamLPT.CoffmanSethi
 /-!
 # Certificates
 
-The critical job's certificates: the smaller of `C(σ)` and `3 p_k` bounds every comparison schedule, the observed third certifies optimality, equality in Graham's bound forces its proof's inequalities to be equalities, and Della Croce–Scatamacchia's Proposition 4 from Chen's property (ARCH.md §1). Lane `certs`; helpers carry the prefix `ct_`.
+The critical job's certificates: the smaller of `C(σ)` and `3 p_k` bounds every comparison schedule, the observed third certifies optimality, equality in Graham's bound forces its proof's inequalities to be equalities, and Della Croce–Scatamacchia's Proposition 4 from Chen's property. Helpers carry the prefix `ct_`.
 -/
 
 @[expose] public section

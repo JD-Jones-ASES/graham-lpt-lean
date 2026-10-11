@@ -6,7 +6,7 @@ public import GrahamLPT.GrahamScaled
 /-!
 # LPTForm
 
-Dósa's theorem for LPT schedules, the two-way statement, and the strict inequality for every job count other than `2m + 1` (ARCH.md §4). Lane `lptform`; helpers carry the prefix `lf_`.
+Dósa's theorem for LPT schedules, the two-way statement, and the strict inequality for every job count other than `2m + 1`.
 -/
 
 @[expose] public section
