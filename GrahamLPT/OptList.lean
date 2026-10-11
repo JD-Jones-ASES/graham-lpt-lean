@@ -18,10 +18,10 @@ open Finset
 index `2i`, positions `m − 1, m` to `2m − 2, 2m − 1`, position `m + 1 + a` (`a < m − 1`) to `2a + 1`, position `2m` to
 `2m`. -/
 def ol_index (m : ℕ) (i : Fin (2 * m + 1)) : Fin (2 * m + 1) :=
-  if (i : ℕ) < m - 1 then ⟨2 * i, by omega⟩
-  else if (i : ℕ) = m - 1 then ⟨2 * m - 2, by omega⟩
-  else if (i : ℕ) = m then ⟨2 * m - 1, by omega⟩
-  else if (i : ℕ) < 2 * m then ⟨2 * ((i : ℕ) - m - 1) + 1, by omega⟩
+  if h₁ : (i : ℕ) < m - 1 then ⟨2 * i, by omega⟩
+  else if h₂ : (i : ℕ) = m - 1 then ⟨2 * m - 2, by omega⟩
+  else if h₃ : (i : ℕ) = m then ⟨2 * m - 1, by omega⟩
+  else if h₄ : (i : ℕ) < 2 * m then ⟨2 * ((i : ℕ) - m - 1) + 1, by omega⟩
   else ⟨2 * m, by omega⟩
 
 theorem ol_index_bijective (m : ℕ) : Function.Bijective (ol_index m) := sorry
@@ -29,9 +29,9 @@ theorem ol_index_bijective (m : ℕ) : Function.Bijective (ol_index m) := sorry
 /-- The machine of each position: `i` for `i < m − 1`; the last machine for positions `m − 1`, `m` and `2m`;
 `m − 2 − a` for position `m + 1 + a`. -/
 def ol_machine (m : ℕ) [NeZero m] (i : Fin (2 * m + 1)) : Fin m :=
-  if (i : ℕ) < m - 1 then ⟨i, by omega⟩
-  else if (i : ℕ) ≤ m then ⟨m - 1, by have := NeZero.pos m; omega⟩
-  else if (i : ℕ) < 2 * m then ⟨2 * m - 2 - i, by omega⟩
+  if h₁ : (i : ℕ) < m - 1 then ⟨i, by omega⟩
+  else if h₂ : (i : ℕ) ≤ m then ⟨m - 1, by have := NeZero.pos m; omega⟩
+  else if h₃ : (i : ℕ) < 2 * m then ⟨2 * m - 2 - i, by have := NeZero.pos m; omega⟩
   else ⟨m - 1, by have := NeZero.pos m; omega⟩
 
 /-- In the explicit order, the schedule `ol_machine` is a list schedule. -/
