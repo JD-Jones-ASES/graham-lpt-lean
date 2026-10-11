@@ -34,18 +34,6 @@ theorem tg_le_grahamJobs (m : ℕ) (j : Fin (2 * m + 1)) : (m : ℝ) ≤ grahamJ
 theorem tg_grahamJobs_nonneg (m : ℕ) (j : Fin (2 * m + 1)) : 0 ≤ grahamJobs m j :=
   le_trans (Nat.cast_nonneg m) (tg_le_grahamJobs m j)
 
-theorem tg_grahamJobs_le (m : ℕ) (j : Fin (2 * m + 1)) : grahamJobs m j ≤ 2 * m - 1 ∨ m = 0 := by
-  rcases Nat.eq_zero_or_pos m with h0 | hpos
-  · exact Or.inr h0
-  · left
-    by_cases h : (j : ℕ) < 2 * m
-    · rw [tg_grahamJobs_apply_lt m j h]
-      have : (0 : ℝ) ≤ (((j : ℕ) / 2 : ℕ) : ℝ) := Nat.cast_nonneg _
-      linarith
-    · rw [tg_grahamJobs_apply_last m j (by omega)]
-      have : (1 : ℝ) ≤ (m : ℝ) := by exact_mod_cast hpos
-      linarith
-
 /-- `Σ_{j < 2k} (c − ⌊j/2⌋) = 2kc − k(k − 1)`. -/
 theorem tg_sum_range_aux (c : ℝ) (k : ℕ) :
     ∑ j ∈ range (2 * k), (c - ((j / 2 : ℕ) : ℝ)) = 2 * (k : ℝ) * c - (k : ℝ) * ((k : ℝ) - 1) := by

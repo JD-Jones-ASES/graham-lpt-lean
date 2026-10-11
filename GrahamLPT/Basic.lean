@@ -77,10 +77,6 @@ theorem bs_sum_filter_add_le {n : ℕ} (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p 
   rw [add_comm, ← Finset.sum_insert hk]
   exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _) (fun j _ _ => hp j)
 
-theorem bs_loadBefore_nonneg {m n : ℕ} (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (σ : Fin n → Fin m) (k : ℕ)
-    (i : Fin m) : 0 ≤ loadBefore p σ k i :=
-  Finset.sum_nonneg fun j _ => hp j
-
 theorem bs_loadBefore_mono {m n : ℕ} (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (σ : Fin n → Fin m) {k k' : ℕ}
     (h : k ≤ k') (i : Fin m) : loadBefore p σ k i ≤ loadBefore p σ k' i := by
   unfold loadBefore
@@ -193,20 +189,6 @@ theorem bs_exists_makespan_eq_opt {m n : ℕ} [NeZero m] (p : Fin n → ℝ) :
   obtain ⟨τ, -, h⟩ := Finset.exists_mem_eq_inf' (univ_nonempty (α := Fin n → Fin m))
     (fun σ : Fin n → Fin m => makespan p σ)
   exact ⟨τ, h.symm⟩
-
-/-- The optimal makespan is at least `(Σ p)/m` and at least every job. -/
-theorem bs_sum_le_mul_optMakespan {m n : ℕ} [NeZero m] (p : Fin n → ℝ) :
-    ∑ j, p j ≤ (m : ℝ) * optMakespan m p := by
-  obtain ⟨τ, hτ⟩ := bs_exists_makespan_eq_opt (m := m) p
-  rw [← hτ]
-  exact bs_sum_le_mul_makespan p τ
-
-theorem bs_le_optMakespan_of_nonneg {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (j : Fin n) :
-    p j ≤ optMakespan m p := by
-  obtain ⟨τ, hτ⟩ := bs_exists_makespan_eq_opt (m := m) p
-  rw [← hτ]
-  refine le_trans ?_ (bs_load_le_makespan p τ (τ j))
-  exact Finset.single_le_sum (fun j _ => hp j) (by simp : j ∈ univ.filter (fun j' : Fin n => τ j' = τ j))
 
 /-- A least-loaded machine of a load vector (the greedy choice). -/
 noncomputable def bs_argmin {m : ℕ} [NeZero m] (L : Fin m → ℝ) : Fin m :=

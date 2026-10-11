@@ -48,9 +48,46 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
    key lemma with `T := C(τ)` (every `τ`-load from the jobs `≤ k` is at most the full load, at most `C(τ)`) gives
    `C(σ) ≤ C(τ) ≤ ((4m − 1)/(3m)) · C(τ)` (`lb2_bound_sorted`). Relabeling gives `lpt_bound` for every LPT schedule;
    at an optimal `τ`, `C(σ) ≤ (4/3 − 1/(3m)) · optMakespan` (`lpt_le_optMakespan`).
-5. **The unit-job family** (`TightList.lean`). *[filled after the lane's report]*
-6. **Graham's family** (`TightLPT.lean`). *[filled after the lane's report]*
-7. **The optimum of Graham's family as a list schedule** (`OptList.lean`). *[filled after the lane's report]*
+5. **The unit-job family** (`TightList.lean`). `unitJobs m` is `1` below index `m(m − 1)` and `m` at it
+   (`tl_unitJobs_apply_lt`, `tl_unitJobs_apply_last`). For a list schedule, the invariant `m · loadBefore k i ≤ k + m − 1`
+   holds for `k ≤ m(m − 1)` by induction on `k` (`tl_loadBefore_le`: the job `k` is a unit job, it lands on a least load
+   `L_k` with `m · L_k ≤ k`, and every other machine's load is unchanged); before `k ≤ m(m − 1)` every load is the
+   cardinality of a fiber (`tl_loadBefore_eq_card`), so at `k = m(m − 1)` each load is an integer `c` with
+   `m · c ≤ m(m − 1) + m − 1`, hence `c ≤ m − 1` (`tl_nat_le`), while the loads sum to `m(m − 1)`: every load is `m − 1`
+   (`tl_loadBefore_units`, `Finset.sum_eq_sum_iff_of_le`). The last job, of length `m`, lands on a load `m − 1`, so some
+   load is `2m − 1`; the bound `m · C ≤ (2m − 1) · m` at an assignment of makespan `m` gives the other inequality
+   (`unitJobs_listSchedule_makespan`). That assignment sends unit job `j` to machine `⌊j/m⌋` and the long job to machine
+   `m − 1`: machine `i < m − 1` carries the unit jobs with `⌊j/m⌋ = i`, at most `m` of them, and machine `m − 1` only the
+   long job (`tl_exists_makespan_eq`); every assignment has makespan at least `m`, the long job's length
+   (`tl_le_makespan`), so the optimum is `m` (`unitJobs_optMakespan`).
+6. **Graham's family** (`TightLPT.lean`). `grahamJobs m j = 2m − 1 − ⌊j/2⌋` for `j < 2m` and `m` at `j = 2m`
+   (`tg_grahamJobs_apply_lt`, `tg_grahamJobs_apply_last`), so every length lies in `[m, 2m − 1]` (`tg_le_grahamJobs`) and
+   the sequence is nonincreasing (`grahamJobs_antitone`); the sum is `3m²` (`tg_grahamJobs_sum`, from
+   `Σ_{j<2k} (c − ⌊j/2⌋) = 2kc − k(k − 1)` by induction, `tg_sum_range_aux`). The pairs `j, 2m − 1 − j` of the first `2m`
+   jobs sum to `3m − 1` and the pairs `j, 2m − 3 − j` of the first `2m − 2` jobs to `3m` (`tg_pair`, `tg_pair'`, by the
+   parity of `j`). The pairing `τ₀` (`j ↦ min(j, 2m − 3 − j)` for `j < 2m − 2`, the three jobs of length `m` on the last
+   machine) has every load `3m` (`tg_exists_opt`: the fibers are explicit pairs and one triple), and `3m² ≤ m · C(τ)` gives
+   `3m ≤ C(τ)` for every `τ` (`tg_le_makespan`), so the optimum is `3m` (`grahamJobs_optMakespan`). The pairing `τ'`
+   (`j ↦ min(j, 2m − 1 − j)`) of the first `2m` jobs has every load `3m − 1` before the cutoff `2m`
+   (`tg_exists_prefix_pairing`); since `3m − 1 < 3m ≤ 3 p_k` for every `k < 2m`, the key lemma with `T = 3m − 1` bounds
+   every machine's load before `2m` by `3m − 1`, and these loads sum to `3m² − m`, so every one is `3m − 1`
+   (`tg_loadBefore_two_mul`). Hence every list schedule of the family in its own order has makespan `4m − 1`: the last job
+   lands on a load `3m − 1`, and the LPT bound at `τ₀` gives `3m · C ≤ (4m − 1) · 3m` (`tg_listSchedule_makespan`). For an
+   LPT schedule, the relabeling `π` has `grahamJobs m ∘ π` nonincreasing, hence equal to `grahamJobs m`
+   (`tg_comp_eq`, `Tuple.unique_antitone`), so `σ ∘ π` is a list schedule of the family in its own order and
+   `makespan_comp` transfers `4m − 1` (`grahamJobs_lpt_makespan`).
+7. **The optimum of Graham's family as a list schedule** (`OptList.lean`). The order
+   `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` is the relabeling `ol_index` (position `i < m − 1` to index `2i`,
+   positions `m − 1, m` to `2m − 2, 2m − 1`, position `m + 1 + a` to `2a + 1`, position `2m` to `2m`), a bijection
+   (`ol_index_bijective`, injective by cases). The schedule `ol_machine` sends position `i < m − 1` to machine `i`,
+   positions `m − 1`, `m` and `2m` to the last machine, and position `m + 1 + a` to machine `m − 2 − a`. The load of
+   machine `b` before position `k` is an explicit sum over a fiber of at most three positions (`ol_loadBefore`: for
+   `b < m − 1` the positions `b` and `2m − 1 − b`, carrying `2m − 1 − b` and `m + 1 + b`; for the last machine the
+   positions `m − 1`, `m`, `2m`, carrying `m` each), computed as a natural number `ol_loadN`; at every step the machine
+   chosen has the least such load (`ol_listN`, a case split closed by `omega`), so `ol_machine` is a list schedule of the
+   reordered family (`ol_isListSchedule`), and every final load is `3m` (`ol_load`, `ol_makespan`). With
+   `π := Equiv.ofBijective (ol_index m)` and `σ := ol_machine m ∘ π.symm`, `makespan_comp` gives the Challenge
+   statement (`grahamJobs_exists_optimal_listSchedule`).
 8. **The least constants** (`Ratio.lean`). Membership of `2 − 1/m` in the set of valid constants is `listSchedule_bound`
    divided by `m`; for any constant `c` in the set, the unit-job family with a list schedule (`exists_isListSchedule`) and an
    optimal `τ` gives `2m − 1 ≤ c · m` (`isLeast_listSchedule_ratio`). Likewise `4/3 − 1/(3m)` with `lpt_bound`, and
