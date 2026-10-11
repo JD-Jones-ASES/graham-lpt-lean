@@ -41,7 +41,7 @@ fully specified in the Challenge, so the comparator checks the Solution's values
 | 26 | `nine_five_four_optMakespan` — The jobs `9, 5, 5, 4, 4, 4` have optimal makespan `12` on three machines (`9 | 5, 5 | 4, 4, 4`) | GrahamLPT/Counter.lean |
 | 27 | `lpt_third_le_not_optimal` — The strict third in `lpt_optimal_of_third_lt` cannot be weakened to `≤`, and `n ≤ 2m` jobs do not make LPT optimal: an instance on three machines whose six jobs are each at least a third of the optimal makespan, with an LPT schedule longer than the optimum | GrahamLPT/Counter.lean |
 | 28 | `lpt_job_position_le` — In a list schedule of a nonincreasing `p`, a job `k` that is the `(c + 1)`-th job placed on its machine satisfies `(c + 1) · p k ≤ C(τ)` for every assignment `τ` (the property Chen 1993 derives the bounds from, as Della Croce and Scatamacchia restate it; proved here by an invariant on pairs of machines) | GrahamLPT/CoffmanSethi.lean |
-| 29 | `lpt_bound_of_card` — The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `k` jobs, then `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993; the bound is attained only for `k ≥ 3`, Chen's `4/3 − 1/(3(m − 1))` being stronger at `k = 2`) | GrahamLPT/CoffmanSethi.lean |
+| 29 | `lpt_bound_of_card` — The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `q` jobs, then `q·m · C(σ) ≤ ((q + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993, as Della Croce and Scatamacchia restate it; the literature states it for `q ≥ 3`; for `m ≥ 2` it is weaker than `lpt_bound` at `q ≤ 2`, and its attainment is not proved here) | GrahamLPT/CoffmanSethi.lean |
 
 ## What is checked
 
@@ -59,14 +59,16 @@ fully specified in the Challenge, so the comparator checks the Solution's values
   requires identical output, prints every compared theorem's type from the Challenge and from the Solution and requires
   identical output, and runs Palomar's `core_notation_audit.lean` on every compared declaration (37 rows: the
   twenty-nine theorems and the eight definitions, exit 0).
-- **The replay.** `scripts/check_lpt.py` (standard library only, exact rationals, 651,683 checks, `VERDICT: PASS`,
+- **The replay.** `scripts/check_lpt.py` (standard library only, exact rationals, 669,488 checks, `VERDICT: PASS`,
   also under `python -O`): every list schedule of every nonincreasing instance of a small exhaustive sweep and of random
   rational instances, as separate tie-breaking branches, against the brute-force optimum — the bounds `m·C_LS ≤
   (2m − 1)·C_OPT` (every order) and `3m·C_LPT ≤ (4m − 1)·C_OPT`, the ratio `7/6` attained at `m = 2`, and the key lemma
   for every job and every assignment; Graham's family for `m = 1..10` (the sum `3m²`, the pairing of makespan `3m`,
   the pairing of the first `2m` jobs with loads `3m − 1`, every load `3m − 1` after `2m` jobs and makespan `4m − 1` on
   every branch, the explicit order whose list schedule has makespan `3m`, the position map as a bijection); the
-  unit-job family for `m = 1..8`; the brute-force optima of both families for `m ≤ 3`; the instance `(9, 5, 5, 4, 4, 4)`.
+  unit-job family for `m = 1..8`; the brute-force optima of both families for `m ≤ 3`; the instance `(9, 5, 5, 4, 4, 4)`
+  with its explicit list schedule and optimal assignment; Chen's property and the Coffman–Sethi form on every branch of
+  the sweep and of random instances; the optimum over lists on the sweep.
 - **Metadata.** `formalization.yaml` parses, its title is within 300 characters, its `status.main_results` and
   `alignment` list the compared theorems in `comparator.json`'s order with every status `proved`, and it validates
   against schema v0.4 when `jsonschema` is installed; `comparator.json` lists no definition holes and no original-proof

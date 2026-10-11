@@ -5,7 +5,7 @@ public import GrahamLPT.Basic
 /-!
 # CoffmanSethi
 
-Chen's property of LPT schedules (Chen 1993, Prop. 2 as quoted by Della Croce–Scatamacchia 2020): in an LPT
+Chen's property of LPT schedules (Chen 1993, as Della Croce–Scatamacchia 2020 restate it, Proposition 2): in an LPT
 schedule the `j`-th job placed on a machine has length at most `C(τ)/j` for every assignment `τ`; hence, when a
 machine attaining the makespan holds `k` jobs, `k·m·C(σ) ≤ ((k + 1)m − 1)·C(τ)` (the Coffman–Sethi form).
 Helpers carry the prefix `cs_`.

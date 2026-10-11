@@ -5,7 +5,8 @@ public import GrahamLPT.Basic
 /-!
 # ListBound
 
-Graham's 1966 bound for list scheduling Helpers carry the prefix `lb_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+Graham's 1966 bound for list scheduling.
+Helpers carry the prefix `lb_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

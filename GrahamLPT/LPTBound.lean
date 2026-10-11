@@ -5,7 +5,8 @@ public import GrahamLPT.Key
 /-!
 # LPTBound
 
-Graham's 1969 bound for LPT Helpers carry the prefix `lb2_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+Graham's 1969 bound for LPT.
+Helpers carry the prefix `lb2_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

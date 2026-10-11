@@ -97,6 +97,8 @@ def check_yaml():
         title = data["project"]["name"]
         if len(title) > 300:
             problems.append(f"title has {len(title)} characters (limit 300)")
+        if not data["project"].get("responsible_maintainers"):
+            problems.append("project.responsible_maintainers is empty (the registry's contract requires a nonempty list)")
         mains = [m["declaration"] for m in data["status"]["main_results"]]
         if mains != config["theorem_names"]:
             problems.append("status.main_results differ from comparator.json theorem_names")

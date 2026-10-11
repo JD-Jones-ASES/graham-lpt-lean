@@ -15,8 +15,8 @@ project:
     (IsListSchedule, in the index order) gives each job a machine whose load from the earlier jobs is least, under
     any tie-breaking (a relation, so every theorem covers every tie-breaking); an LPT schedule (IsLPTSchedule) is a
     list schedule of the jobs in some nonincreasing order of length. Theorems, kernel-only: every list schedule
-    sigma and every assignment tau satisfy m * C(sigma) <= (2m - 1) * C(tau) (Graham 1966, his Theorem with n = n'
-    and no precedence constraints), so C(sigma) <= (2 - 1/m) * optMakespan; the m(m - 1) unit jobs followed by one
+    sigma and every assignment tau satisfy m * C(sigma) <= (2m - 1) * C(tau) (Graham 1966, his Theorem for the same
+    number of processors and no precedence constraints), so C(sigma) <= (2 - 1/m) * optMakespan; the m(m - 1) unit jobs followed by one
     job of length m (Graham's example for his theorem on scheduling the k largest tasks optimally first, at k = 0, as
     his 1972 survey restates it; Lenstra-Shmoys, Chapter 9, p. 188) have optimum m and every list schedule of them in
     that order has makespan 2m - 1, so 2 - 1/m is the least constant (IsLeast); every LPT schedule sigma and every assignment tau satisfy 3m * C(sigma) <=
@@ -35,9 +35,11 @@ project:
     do not make LPT optimal; Graham's 1972 survey prints Spencer's 6, 3, 3, 2, 2, 2 for the same purpose); and the
     position of a job on its machine: the (c + 1)-th job k placed on a machine of a list schedule of a nonincreasing p
     has (c + 1) p_k <= C(tau) for every assignment tau (the property of Chen 1993, as Della Croce-Scatamacchia 2020
-    restate it; proved here by an invariant on pairs of machines), hence the Coffman-Sethi form k m C(sigma) <=
-    ((k + 1) m - 1) C(tau) for a machine with k jobs attaining the makespan of an LPT schedule (Coffman-Sethi 1976 as
-    corrected by Chen 1993; sharp only for k >= 3, Chen's 4/3 - 1/(3(m - 1)) at k = 2 not proved here). The proof of the
+    restate it; proved here by an invariant on pairs of machines), hence the Coffman-Sethi form q m C(sigma) <=
+    ((q + 1) m - 1) C(tau) for a machine with q jobs attaining the makespan of an LPT schedule (Coffman-Sethi 1976 as
+    corrected by Chen 1993, as Della Croce-Scatamacchia restate it; the literature states it for q >= 3, for m >= 2 it is
+    weaker than the 4/3 - 1/(3m) bound at q <= 2, and neither its attainment nor Chen's 4/3 - 1/(3(m - 1)) at q = 2 is
+    proved here; Chen's and Coffman-Sethi's papers were not read). The proof of the
     LPT bound is by counting, not by his exchange argument: with k the job ending a heaviest machine, the average-load
     bound settles 3 p_k <= C(tau), and otherwise a count of the jobs up to k (every machine of tau holds at most two
     of them, those at least as long as the least load sit alone, each single-job machine of sigma contributes one)
@@ -70,13 +72,15 @@ sources:
       the tie convention (the lower-indexed processor), Section 2; tasks with mu: T -> (0, infinity) and the LPT rule,
       Section 5, p. 421; Theorem 2, omega_L/omega_0 <= 4/3 - 1/(3n), "best possible", p. 421; the instance of 2n + 1 tasks
       alpha_k = 2n - [(k + 1)/2] (k = 1, ..., 2n), alpha_{2n+1} = n, with omega_L = 4n - 1 and omega_0 = 3n, pp. 425-426,
-      no parity condition on n.
+      no parity condition on n; the proof's case alpha_r > omega_0/3, in which every optimal schedule runs at most two
+      tasks per processor, pp. 421-425 (the reading of 2026-10-09).
     relationship: "formalizes"
     author_endorsement: "not-contacted"
     note: >-
       lpt_bound and lpt_le_optMakespan are Theorem 2 with n processors read as m machines, nonnegative lengths in place
-      of positive ones, every tie-breaking in place of the lower-index rule, and the optimum over assignments, which is
-      at most his omega_0 (the least finishing time over lists), so the statements are the stronger form;
+      of positive ones, every tie-breaking in place of the lower-index rule, and the optimum over assignments, which
+      equals his omega_0, the least finishing time over lists (exists_listSchedule_le, isLeast_listSchedule_makespan),
+      so the statements are his with nonnegative lengths and every tie-breaking as the only widening;
       grahamJobs_antitone, grahamJobs_optMakespan and grahamJobs_lpt_makespan are his instance of pp. 425-426 for every
       m >= 1 (grahamJobs m at index j is alpha_{j+1}). The proof here is not his exchange argument (see PROOF.md).
   - title: "Bounds for certain multiprocessing anomalies"
@@ -100,7 +104,12 @@ sources:
       instance of unitJobs_* is not in this paper (his Example 5 is a different instance); it is in his 1972 survey.
       Section III announces the bound of the 1969 paper.
   - title: "Elements of Scheduling"
-    authors: ["Jan Karel Lenstra (editor)", "David B. Shmoys (editor)"]
+    authors: ["David B. Shmoys", "Jan Karel Lenstra"]
+    contributors:
+      - name: "Jan Karel Lenstra"
+        role: "editor"
+      - name: "David B. Shmoys"
+        role: "editor"
     id: "arXiv:2001.06005"
     type: "book"
     location: >-
@@ -128,8 +137,9 @@ sources:
     relationship: "background"
     author_endorsement: "not-contacted"
     note: >-
-      The refinement (k + 1)/k - 1/(km) when the machine finishing last holds at least k jobs, k >= 3 (as restated by
-      Della Croce and Scatamacchia, Proposition 3 (6)); not formalized here.
+      The form (k + 1)/k - 1/(km) for the number k of jobs on the machine attaining the makespan, stated for k >= 3 (as
+      restated by Della Croce and Scatamacchia, Proposition 3 (6)); lpt_bound_of_card proves it for every k, through that
+      restatement and by a different argument; the paper itself was not read.
   - title: "A note on LPT scheduling"
     authors: ["Bo Chen"]
     id: "doi:10.1016/0167-6377(93)90024-B"
@@ -139,8 +149,10 @@ sources:
     author_endorsement: "not-contacted"
     note: >-
       Shows that the j-th job LPT places on a machine has length at most C*/j, derives Graham's 4/3 - 1/(3m) and the
-      Coffman-Sethi bound from it, and corrects a flaw in the latter (abstract); not formalized here.
-  - title: "Longest Processing Time rule for identical parallel machines revisited"
+      Coffman-Sethi bound from it, and corrects a flaw in the latter (abstract); lpt_job_position_le proves that
+      property, through Della Croce and Scatamacchia's restatement (Proposition 2 (4)) and by a different argument; the
+      paper itself was not read.
+  - title: "The Longest Processing Time rule for identical parallel machines revisited"
     authors: ["Federico Della Croce", "Rosario Scatamacchia"]
     id: "doi:10.1007/s10951-018-0597-6"
     type: "paper"
@@ -148,9 +160,12 @@ sources:
       Journal of Scheduling 23 (2) (2020), 163-176; read as arXiv:1801.05489v1 (https://arxiv.org/abs/1801.05489),
       pp. 1-3: Section 2, Propositions 1-3 (the bounds (1)-(3), Chen's property (4), r_2 <= 4/3 - 1/(3(m - 1)) (5),
       r_k <= (k + 1)/k - 1/(km) for k >= 3 (6)). The journal print was not read.
-    relationship: "background"
+    relationship: "formalizes"
     author_endorsement: "not-contacted"
-    note: "A survey of the known LPT bounds with their conditions; nothing from it is formalized."
+    note: >-
+      The read restatement of Chen's property, Proposition 2 (4), proved here as lpt_job_position_le, and of the
+      Coffman-Sethi form, Proposition 3 (6), proved here as lpt_bound_of_card, both by this development's own argument;
+      the survey's other statements are not formalized.
   - title: "Verified Approximation Algorithms"
     authors: ["Robin Eßmann", "Tobias Nipkow", "Simon Robillard", "Ujkan Sulejmani"]
     id: "doi:10.46298/lmcs-18(1:36)2022"
@@ -159,7 +174,7 @@ sources:
     relationship: "background"
     author_endorsement: "not-contacted"
     note: >-
-      The Isabelle/HOL load-balancing proofs (after Kleinberg-Tardos): greedy list scheduling within 2 and sorted
+      The Isabelle/HOL load-balancing proofs: greedy list scheduling within 2 and sorted
       greedy (LPT) within 3/2 of every assignment; named in the docs as the nearest proof-assistant work (see
       related_formalizations). No code is shared.
   - title: "Bounds on multiprocessing anomalies and related packing algorithms"
@@ -184,7 +199,7 @@ sources:
       nonincreasing order), "This bound is best possible", the n = 2 example 3, 3, 2, 2, 2 of ratio 7/6, and the general
       example alpha_k = 2n - [(k + 1)/2] (1 <= k <= 2n), alpha_{2n+1} = n, that is (2n - 1, 2n - 1, ..., n + 1, n + 1, n, n, n),
       run by the decreasing list (Figure 14) and by an optimal list (Figure 15), with no parity condition: grahamJobs.
-      p. 210, Figure 16: J. H. Spencer's (6, 3, 3, 2, 2, 2) on three processors, the decreasing list not optimal. The
+      p. 210, Figure 16: J. H. Spencer's (6, 3, 3, 2, 2, 2) on three processors, the decreasing list not optimal (not formalized here; 9, 5, 5, 4, 4, 4 plays its role). The
       bounds are attributed there to the 1966 paper (reference 19) and the 1969 paper (reference 20). The proofs here
       are not his.
 
@@ -211,8 +226,7 @@ related_formalizations:
   - id: "https://github.com/coproduct-opensource/nucleus/blob/5e8f7c8/ci/lean/CiSpec/Capacity.lean"
     relationship: "other"
     note: >-
-      Lean 4, a CI capacity spec: sched_bound, Graham's list-scheduling invariant (every load at most the average plus
-      the largest job) over Nat, credited to Graham 1966; no LPT. No code is shared.
+      Lean 4, a CI capacity spec: sched_bound, Graham's list-scheduling bound m * C <= sum p + (m - 1) * p_max over Nat, credited to Graham 1966; no LPT. No code is shared.
   - id: "https://github.com/nikhgarg/AppliedModelingLib/blob/194edcc/papers/LMMS04FairDivision/Theorem32Graham.lean"
     relationship: "other"
     note: >-
@@ -241,7 +255,7 @@ status:
     sharp (3): on three machines 9, 5, 5, 4, 4, 4 has an LPT schedule of makespan 13 and optimum 12, each job at least
     a third of 12. The position of a job on its machine (2): Chen's property (c + 1) p_k <= C(tau) for the
     (c + 1)-th job k on a machine of a list schedule of a nonincreasing p, and the Coffman-Sethi form
-    k m C(sigma) <= ((k + 1) m - 1) C(tau) for a machine with k jobs attaining the makespan of an LPT schedule.
+    q m C(sigma) <= ((q + 1) m - 1) C(tau) for a machine with q jobs attaining the makespan of an LPT schedule.
     All proved; no sorry, no axiom beyond propext, Classical.choice and
     Quot.sound; no native_decide; Lean v4.35.0-rc2 with Mathlib at the same tag, pinned by the committed manifest.
   completeness: "complete"
@@ -401,8 +415,9 @@ automation:
         The project was directed by its author. Claude (Anthropic) in Claude Code was used throughout: the
         reading of Graham's papers as printed pages, the statements and their check against them, the exact replay of
         the finite facts in the standard library, the Lean proofs, the prior-art searches and the repository text,
-        by Claude Fable 5.1 and Claude Opus 5.5 subagents in Claude Code, with the proofs audited in separate
-        passes. Lean v4.35.0-rc2 and Mathlib v4.35.0-rc2 (commit 065356127b1dc0016f66b7283ce0ce2c4055aa55) are
+        by the Claude Fable 5.1 session that directed the work (the statements, the exact probe, the documents) and
+        Claude Opus 5.5 subagents (the proofs, the reading passes, the audits) in Claude Code, with the proofs audited
+        in separate passes. Lean v4.35.0-rc2 and Mathlib v4.35.0-rc2 (commit 065356127b1dc0016f66b7283ce0ce2c4055aa55) are
         pinned by the committed manifest and lake update is never run; there are no GitHub Actions workflows. There
         is no native_decide and no decide +kernel: the proofs are Finset arithmetic over the reals and the natural
         numbers (fibers of assignments, sums over them, cardinalities), closed by linarith, omega, simp and ring.
@@ -410,7 +425,8 @@ automation:
 
 fidelity:
   divergences: >-
-    Job lengths are real numbers, nonnegative where a bound is stated (Graham takes positive lengths); the number of
+    Job lengths are real numbers, nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966
+    nonnegative ones); the number of
     machines m is a natural number with the typeclass hypothesis NeZero m. An assignment is a function from job
     indices to machine indices (Fin n -> Fin m); the load of a machine is the sum of the lengths assigned to it,
     with no idle time and no start times, which is the makespan model for independent tasks; the optimal makespan
@@ -421,9 +437,9 @@ fidelity:
     his lowest-index tie rule, so every theorem quantifies over every tie-breaking. An LPT schedule (IsLPTSchedule)
     is an assignment sigma for which some permutation pi of the indices makes p o pi nonincreasing and sigma o pi a
     list schedule of p o pi. Graham's omega_0 is the least finishing time over all lists; optMakespan is the least
-    over all assignments, which is at most omega_0 (every list schedule is an assignment), so the bounds here are
-    stated against every assignment and are at least as strong as his; the equality of the two optima in general is
-    not proved, while for his instance the optimum 3m is shown to be attained by a list schedule. The bounds are
+    over all assignments; the two are equal (exists_listSchedule_le, isLeast_listSchedule_makespan), so the bounds
+    here, stated against every assignment, are his, with nonnegative lengths and every tie-breaking as the only
+    widening; for his instance the optimum 3m is attained by an explicit list schedule. The bounds are
     stated division-free (3m * C(sigma) <= (4m - 1) * C(tau)) and in ratio form against optMakespan with real
     division. Graham's instance (grahamJobs) is indexed from 0: job j < 2m has length 2m - 1 - floor(j/2) and job 2m
     has length m, which is his alpha_k = 2n - floor((k + 1)/2) for k = 1..2n and alpha_{2n+1} = n; its lengths are
@@ -438,16 +454,15 @@ review:
   status: "self-assessed"
   notes: >-
     No independent human expert review and no source-author endorsement is claimed; AI agents wrote the proofs and
-    audited them in separate passes, the statements were checked against the printed pages of the papers by a
-    separate reading pass, the finite facts behind every statement are replayed exactly by scripts/check_lpt.py in
+    audited them in separate passes, the statements were checked against the printed pages of the texts read (Graham
+    1966, Graham 1972, Lenstra-Shmoys, Della Croce-Scatamacchia) by a separate reading pass, the finite facts behind every statement are replayed exactly by scripts/check_lpt.py in
     the standard library, and VERIFICATION.md states what is checked and what is not. Mechanical correctness and
-    agreement of formal statements do not establish significance: the bounds and the LPT instance are Graham's, the
-    unit-job instance is the textbook one; what this development adds is the relation form over every tie-breaking,
+    agreement of formal statements do not establish significance: the bounds and both instances are Graham's; what this development adds is the relation form over every tie-breaking,
     the counting proof of the key step in place of the exchange argument, the IsLeast forms, the optimality theorem
     as a statement with its sharpness instance, the equality of the optimum over lists with the optimum over
     assignments, the explicit list attaining the optimum of Graham's instance, and the pair-of-machines invariant
     behind Chen's property (Chen's and Coffman-Sethi's papers were not read; their statements are taken from Della
-    Croce-Scatamacchia 2020). The sources lane's dated searches
+    Croce-Scatamacchia 2020). The dated searches
     (formalization.yaml's description names them) found no earlier kernel check of the 4/3 - 1/(3m) bound or of
     either equality family; the Isabelle AFP holds a 3/2 bound for sorted greedy, and two Lean repositories hold the
     2 - 1/m list-scheduling bound over lists of naturals.
@@ -495,12 +510,12 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "Relabeling the jobs by a permutation changes neither the loads nor the makespan."
-    - source: "Graham 1966, the Theorem of Section II with n = n' and no precedence constraints (Graham 1972, (1)-(2), p. 208), against every assignment (this development's form)"
+    - source: "Graham 1966, the Theorem of Section II for the same number of processors and no precedence constraints (Graham 1972, (1)-(2), p. 208), against every assignment (this development's form)"
       lean: "GrahamLPT.listSchedule_bound"
       module: "Solution"
       status: "proved"
       note: "Graham's bound for list scheduling: for nonnegative lengths, every list schedule `σ` and every assignment `τ` satisfy `m · C(σ) ≤ (2m − 1) · C(τ)`."
-    - source: "Graham 1966, the Theorem with n = n'; the ratio form"
+    - source: "Graham 1966, the Theorem for the same number of processors; the ratio form"
       lean: "GrahamLPT.listSchedule_le_optMakespan"
       module: "Solution"
       status: "proved"
@@ -595,8 +610,8 @@ alignment:
       module: "Solution"
       status: "proved"
       note: "In a list schedule of a nonincreasing `p`, a job `k` that is the `(c + 1)`-th job placed on its machine satisfies `(c + 1) · p k ≤ C(τ)` for every assignment `τ` (the property Chen 1993 derives the bounds from, as Della Croce and Scatamacchia restate it; proved here by an invariant on pairs of machines)."
-    - source: "Coffman-Sethi 1976 as corrected by Chen 1993 (not read), the form (k + 1)/k - 1/(km) for the number k of jobs on the machine attaining the makespan, as Della Croce-Scatamacchia 2020, Proposition 3 (6), restate it; stated here for every k, sharp only for k >= 3"
+    - source: "Coffman-Sethi 1976 as corrected by Chen 1993 (not read), the form (k + 1)/k - 1/(km) for the number k of jobs on the machine attaining the makespan, as Della Croce-Scatamacchia 2020, Proposition 3 (6), restate it; stated here for every k (the literature states it for k >= 3; attainment not proved here)"
       lean: "GrahamLPT.lpt_bound_of_card"
       module: "Solution"
       status: "proved"
-      note: "The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `k` jobs, then `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993; the bound is attained only for `k ≥ 3`, Chen's `4/3 − 1/(3(m − 1))` being stronger at `k = 2`)."
+      note: "The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `q` jobs, then `q·m · C(σ) ≤ ((q + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993, as Della Croce and Scatamacchia restate it; the literature states it for `q ≥ 3`; for `m ≥ 2` it is weaker than `lpt_bound` at `q ≤ 2`, and its attainment is not proved here)."

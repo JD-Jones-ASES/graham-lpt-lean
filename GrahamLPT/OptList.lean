@@ -5,7 +5,8 @@ public import GrahamLPT.TightLPT
 /-!
 # OptList
 
-The optimum of Graham's family attained by a list schedule Helpers carry the prefix `ol_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+The optimum of Graham's family attained by a list schedule.
+Helpers carry the prefix `ol_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

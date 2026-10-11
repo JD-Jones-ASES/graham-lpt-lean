@@ -176,7 +176,7 @@ theorem lo_exists_listSchedule_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp
     rw [← makespan_comp_internal p (σ' ∘ π.symm) π, e]
     exact key
 
-/-- The optimal makespan is the least makespan over the list schedules in all orders (Graham's `ω₀ = ω`). -/
+/-- The optimal makespan is the least makespan over the list schedules in all orders (Graham's `ω₀` equals `optMakespan`). -/
 theorem lo_optMakespan_eq {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) :
     IsLeast ((fun σ : Fin n → Fin m => makespan p σ) ''
       {σ | ∃ π : Equiv.Perm (Fin n), IsListSchedule (p ∘ π) (σ ∘ π)}) (optMakespan m p) := by

@@ -54,9 +54,10 @@ This file states, and `Solution.lean` proves (kernel-only):
   `lpt_third_le_not_optimal`), so neither `n ≤ 2m` jobs nor a weak third makes LPT optimal;
 * the position of a job on its machine: in a list schedule of a nonincreasing `p`, the `(c + 1)`-th job `k` placed on a
   machine has `(c + 1) · p_k ≤ C(τ)` for every assignment `τ` (`lpt_job_position_le`, the property of Chen 1993 as
-  Della Croce and Scatamacchia restate it), hence the Coffman–Sethi form `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` when a
-  machine attaining the makespan of an LPT schedule holds `k` jobs (`lpt_bound_of_card`; Coffman–Sethi 1976, corrected
-  by Chen 1993; attained only for `k ≥ 3`).
+  Della Croce and Scatamacchia restate it), hence the Coffman–Sethi form `q·m · C(σ) ≤ ((q + 1)m − 1) · C(τ)` when a
+  machine attaining the makespan of an LPT schedule holds `q` jobs (`lpt_bound_of_card`; Coffman–Sethi 1976 as
+  corrected by Chen 1993, as Della Croce and Scatamacchia restate it; the literature states it for `q ≥ 3`, for
+  `m ≥ 2` it is weaker than `lpt_bound` at `q ≤ 2`, and its attainment is not proved here).
 
 Graham's `ω₀` is the least finishing time over all lists; `optMakespan` is the least over all assignments, so the
 bounds here, stated against every assignment, are his by the equality above; for his instance the optimum `3m` is
@@ -254,9 +255,10 @@ theorem lpt_job_position_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀
     (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (τ : Fin n → Fin m) :
     (((univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = σ k)).card : ℝ) + 1) * p k ≤ makespan p τ := sorry
 
-/-- The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `k` jobs,
-then `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993;
-the bound is attained only for `k ≥ 3`, Chen's `4/3 − 1/(3(m − 1))` being stronger at `k = 2`). -/
+/-- The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `q` jobs,
+then `q·m · C(σ) ≤ ((q + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993, as
+Della Croce and Scatamacchia restate it; the literature states it for `q ≥ 3`; for `m ≥ 2` it is weaker than
+`lpt_bound` at `q ≤ 2`, and its attainment is not proved here). -/
 theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
     (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (τ : Fin n → Fin m) (i : Fin m)
     (hi : load p σ i = makespan p σ) :

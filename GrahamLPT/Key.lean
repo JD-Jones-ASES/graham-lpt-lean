@@ -5,7 +5,8 @@ public import GrahamLPT.Basic
 /-!
 # Key
 
-The key lemma by counting, and the optimality of LPT when every job exceeds a third of the optimum Helpers carry the prefix `key_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
+The key lemma by counting, and the optimality of LPT when every job exceeds a third of the optimum.
+Helpers carry the prefix `key_`; the `_internal` twins of the Challenge theorems are closed in `Solution.lean`.
 -/
 
 @[expose] public section

@@ -48,9 +48,11 @@ proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names 
 - **the position of a job on its machine:** in a list schedule of a nonincreasing `p`, the `(c + 1)`-th job `k` placed
   on a machine has `(c + 1) · p_k ≤ C(τ)` for every assignment `τ` (`lpt_job_position_le`; the property of Chen 1993,
   *A note on LPT scheduling*, as Della Croce–Scatamacchia 2020 restate it, Proposition 2; proved here by an invariant on
-  pairs of machines), hence the Coffman–Sethi form: a machine attaining the makespan of an LPT schedule with `k` jobs
-  gives `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` (`lpt_bound_of_card`; Coffman–Sethi 1976 as corrected by Chen 1993; the
-  bound is attained only for `k ≥ 3`, Chen's `4/3 − 1/(3(m − 1))` being stronger at `k = 2`, which is not proved here).
+  pairs of machines), hence the Coffman–Sethi form: a machine attaining the makespan of an LPT schedule with `q` jobs
+  gives `q·m · C(σ) ≤ ((q + 1)m − 1) · C(τ)` (`lpt_bound_of_card`; Coffman–Sethi 1976 as corrected by Chen 1993, as
+  Della Croce–Scatamacchia 2020 restate it, Proposition 3; the literature states it for `q ≥ 3`, for `m ≥ 2` it is
+  weaker than `lpt_bound` at `q ≤ 2`, and neither its attainment nor Chen's `4/3 − 1/(3(m − 1))` at `q = 2` is proved
+  here). Chen's and Coffman–Sethi's papers were not read; their statements are taken from that survey.
 
 Lengths are nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966 nonnegative ones). The proof
 of the LPT bound is by counting, not by his exchange argument: with `k` the job ending a heaviest machine, the
@@ -68,8 +70,9 @@ over lists of naturals; fbz321/LLM-FOR-SCHEDULING names the LPT ratio as a stub.
 Lean `v4.35.0-rc2` with Mathlib at the same tag (pinned by `lake-manifest.json`). `python scripts/verify.py` runs the
 pins, the source guard and its controls, the definition and statement checks, the standard-library replay
 (`scripts/check_lpt.py`: every list schedule of a small exhaustive sweep and of random instances, as separate
-tie-breaking branches, against the brute-force optimum; the key lemma; both families for `m` up to 10 and 8; 651,683
-checks, also under `python -O`), the metadata check, the build with the axiom audit (`Test/Axioms.lean` rejects any
+tie-breaking branches, against the brute-force optimum; the key lemma; both families for `m` up to 10 and 8; 669,488
+checks, also under `python -O`; Chen's property, the Coffman–Sethi form and the list form of the optimum included), the
+metadata check, the build with the axiom audit (`Test/Axioms.lean` rejects any
 axiom beyond `propext`, `Classical.choice`, `Quot.sound`), the module-resolution check, the `pp.all` elaboration checks
 of the definitions and of the theorem types, and Palomar's core-notation audit, and ends with `VERIFY: PASS`
 (`--skip-build` leaves out the Lean steps and ends with `VERIFY (source/replay only)`, which does not check the proofs).

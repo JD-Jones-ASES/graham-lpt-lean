@@ -9,7 +9,7 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
    (`bs_loadBefore_zero`, `bs_loadBefore_succ`); at or beyond `n` it is the load (`bs_loadBefore_of_le`); the loads before
    `k` sum to the lengths of the jobs before `k` and the loads to the total (`bs_sum_loadBefore`, `bs_sum_load`, by
    `Finset.sum_fiberwise`); for nonnegative lengths `loadBefore` is nonnegative, monotone in the cutoff and at most the load
-   (`bs_loadBefore_nonneg`, `bs_loadBefore_mono`, `bs_loadBefore_le_load`); a machine with no job has load `0`
+   (`bs_loadBefore_mono`, `bs_loadBefore_le_load`); a machine with no job has load `0`
    (`bs_load_eq_zero`, `bs_loadBefore_eq_zero`) and a machine with a job has a last job `k`, its load being
    `loadBefore p σ k i + p k` (`bs_exists_last_job_before` by `Finset.exists_max_image` on the fiber, then
    `bs_exists_last_job` at the cutoff `n`). In a list schedule `m · L_k ≤ Σ_{j<k} p_j`, the least of `m` loads being at

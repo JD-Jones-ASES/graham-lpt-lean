@@ -11,9 +11,13 @@ the sweep); Graham's family 2m-1, 2m-1, ..., m+1, m+1, m, m, m for m = 1..10 (th
 3m, the first-2m pairing of loads 3m - 1, every load 3m - 1 after 2m jobs and makespan 4m - 1 on every branch, the
 explicit order whose list schedule has makespan 3m, the position-to-index map as a bijection); the unit-job family
 for m = 1..8 (the assignment of makespan m, every load m - 1 after the units and makespan 2m - 1 on every branch); the
-brute-force optima of both families for m <= 3; and the instance (9, 5, 5, 4, 4, 4) on three machines, whose LPT
-makespan 13 exceeds the optimum 12 (so the hypothesis of the optimality theorem is needed). Ends with VERDICT: PASS
-or VERDICT: FAIL; no check uses assert; exit status 0 on PASS only.
+brute-force optima of both families for m <= 3; the instance (9, 5, 5, 4, 4, 4) on three machines, whose LPT
+makespan 13 exceeds the optimum 12 with every job at least a third of 12 (the explicit list schedule 0, 1, 2, 1, 2, 0
+and the assignment 0, 1, 1, 2, 2, 2); Chen's property (c + 1) p_k <= OPT for the (c + 1)-th job placed on a machine
+and the Coffman-Sethi form q m C <= ((q + 1) m - 1) OPT for a machine with q jobs attaining the makespan, on every
+branch of the sweep and of random instances; and the optimum over lists (the least makespan over every order and every
+branch equals the optimum) on the sweep. Ends with VERDICT: PASS or VERDICT: FAIL; no check uses assert; exit status 0
+on PASS only.
 
     python -I scripts/check_lpt.py
 """
@@ -243,7 +247,53 @@ def remark():
     cs = {makespan(p, s, 3) for s in branches(p, 3)}
     check("(9,5,5,4,4,4): every LPT branch has makespan 13", cs == {13})
     check("(9,5,5,4,4,4): the optimum is 12", opt(p, 3) == 12)
+    sched = (0, 1, 2, 1, 2, 0)
+    check("(9,5,5,4,4,4): 0,1,2,1,2,0 is a list schedule", is_list_schedule(p, sched, 3))
+    check("(9,5,5,4,4,4): its loads are 13, 9, 9", loads_of(p, sched, 3) == [F(13), F(9), F(9)])
+    check("(9,5,5,4,4,4): 0,1,1,2,2,2 has makespan 12", makespan(p, (0, 1, 1, 2, 2, 2), 3) == 12)
+    check("(9,5,5,4,4,4): every job is at least a third of 12", all(12 <= 3 * x for x in p))
     print("(9, 5, 5, 4, 4, 4) on three machines: LPT 13 on every branch, optimum 12")
+
+
+# ---------------------------------------------------------------- Chen's property, the Coffman-Sethi form, the optimum over lists
+
+def position_and_card(p, sigma, m):
+    """Every LPT branch of a sorted p: (c + 1) p_k <= OPT for the (c + 1)-th job k on its machine, and
+    q m C <= ((q + 1) m - 1) OPT for every machine with q jobs attaining the makespan C."""
+    c_opt = opt(p, m)
+    count = [0] * m
+    for k in range(len(p)):
+        count[sigma[k]] += 1
+        check(f"Chen's property m={m} p={p} s={sigma} k={k}", count[sigma[k]] * p[k] <= c_opt)
+    loads = loads_of(p, sigma, m)
+    c = max(loads)
+    for i in range(m):
+        if loads[i] == c:
+            q = count[i]
+            check(f"Coffman-Sethi form m={m} p={p} s={sigma} i={i}", q * m * c <= ((q + 1) * m - 1) * c_opt)
+
+
+def lifted():
+    sizes = {1: 4, 2: 5, 3: 4}
+    for m in (1, 2, 3):
+        for n in range(1, sizes[m] + 1):
+            for raw in product(range(0, 5), repeat=n):
+                if any(raw[j] < raw[j + 1] for j in range(n - 1)):
+                    continue
+                p = [F(x) for x in raw]
+                for s in branches(p, m):
+                    position_and_card(p, s, m)
+                # the optimum over lists: the least makespan over every order and every branch is the optimum
+                best = min(makespan([p[j] for j in perm], s, m)
+                           for perm in set(permutations(range(n))) for s in branches([p[j] for j in perm], m))
+                check(f"optimum over lists m={m} p={raw}", best == opt(p, m))
+    for _ in range(150):
+        m = random.randint(1, 4)
+        n = random.randint(1, 6)
+        p = sorted([F(random.randint(0, 30), random.randint(1, 3)) for _ in range(n)], reverse=True)
+        for s in branches(p, m):
+            position_and_card(p, s, m)
+    print("Chen's property, the Coffman-Sethi form and the optimum over lists replayed on the sweep and random instances")
 
 
 if __name__ == "__main__":
@@ -252,6 +302,7 @@ if __name__ == "__main__":
     graham_family()
     unit_family()
     remark()
+    lifted()
     print(f"{CHECKS} checks, {len(FAILS)} failures")
     print("VERDICT: PASS" if not FAILS else "VERDICT: FAIL")
     sys.exit(0 if not FAILS else 1)
