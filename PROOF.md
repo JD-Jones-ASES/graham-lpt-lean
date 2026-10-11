@@ -103,13 +103,13 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
    schedule is at most `C(τ)` (`lo_makespan_le`), and `makespan_comp` transfers to `σ := σ' ∘ π.symm`
    (`exists_listSchedule_le`); at an optimal `τ` this makes `optMakespan` the least makespan over the list schedules of all
    orders (`isLeast_listSchedule_makespan`).
-10. **The third is sharp** (`Counter.lean`). For `9, 5, 5, 4, 4, 4` on three machines the assignment `0, 1, 2, 1, 2, 0`
+10. **The third cannot be weakened** (`Counter.lean`). For `9, 5, 5, 4, 4, 4` on three machines the assignment `0, 1, 2, 1, 2, 0`
    is a list schedule (the eighteen inequalities by `fin_cases` and `norm_num`), hence an LPT schedule with `π = 1`, and
    its loads are `13, 9, 9` (`nine_five_four_lpt_thirteen`). Every assignment has makespan at least `12`: if the job `9`
    shares its machine the load is at least `13`; otherwise the three `4`s either share one machine (`12`) or two of them
    share a machine and the third sits on another, and then a `5` on the first gives `13` or both `5`s on the second give
    `14` (`cx_twelve_le_makespan`); the assignment `0, 1, 1, 2, 2, 2` has makespan `12` (`nine_five_four_optMakespan`).
-   Every job is at least `12/3`, so the instance is the sharpness witness (`lpt_third_le_not_optimal`).
+   Every job is at least `12/3`, so the instance is the witness (`lpt_third_le_not_optimal`).
 11. **Chen's property and the Coffman–Sethi form** (`CoffmanSethi.lean`). Fix the job `k` of positive length `P := p k`
    in a list schedule of a nonincreasing `p`; every earlier job is at least `P`. Weigh a job `x` by `⌊x/P⌋` (`cs_fl` sums
    the weights of a machine's jobs before a cutoff, `cs_cnt` counts them). For two machines `h, g`, the restriction of the
@@ -124,3 +124,65 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
    it, so `k · p_q ≤ C(τ)`, and `m · C(σ) = m(L_q + p_q) ≤ Σ p + (m − 1) p_q ≤ m · C(τ) + (m − 1) C(τ)/k` gives
    `km · C(σ) ≤ ((k + 1)m − 1) · C(τ)` (`cs_bound`; `k = 0` is the empty machine); relabeling gives the LPT form
    (`lpt_bound_of_card`).
+12. **The critical job** (`Certificates.lean`). Fix a list schedule `σ` of a nonincreasing nonnegative `p` and a job `k`
+   whose completion `L_k + p_k` is the makespan. If `C(τ) < 3 p_k`, the key lemma with `T := C(τ)` (every `τ`-load from
+   the jobs `≤ k` is at most `C(τ)`; `ct_key_le`) gives `C(σ) = L_k + p_k ≤ C(τ)`; otherwise `3 p_k ≤ C(τ)`: so
+   `min(C(σ), 3 p_k) ≤ C(τ)` (`lpt_critical_min_le`), and when `C(σ) ≤ 3 p_k` an optimal `τ` gives
+   `C(σ) ≤ optMakespan ≤ C(σ)` (`lpt_eq_optMakespan_of_critical_third`). Equality `3m · C(σ) = (4m − 1) · C(τ)` with
+   `m ≥ 2` (`lpt_eq_bound_structure`): if `C(τ) = 0` then `C(σ) = 0`, every job is `0` and every load vanishes; if
+   `C(τ) > 0` then `C(σ) > C(τ)`, so the key lemma gives `3 p_k ≤ C(τ)`, and the chain `m · L_k ≤ Σ_{j<k} p_j ≤ Σ p − p_k
+   ≤ m · C(τ) − p_k` gives `3m · C(σ) ≤ 3m · C(τ) + 3(m − 1) p_k`, whence `C(τ) ≤ 3 p_k` (`ct_eq_scalar`); so
+   `3 p_k = C(τ)` and the chain is tight: the loads before `k`, each at least `L_k`, sum to `m · L_k`, so all equal `L_k`;
+   the loads of `τ`, each at most `C(τ)`, sum to `m · C(τ)`, so all equal `C(τ)`; and the jobs after `k` sum to `0`
+   (`Finset.sum_eq_zero_iff_of_nonneg`). The other-machine bound (`lpt_bound_of_other_card`): write `s := L_k`,
+   `P := p_k`; a machine `i ≠ σ k` holding at least `q ≥ 1` jobs before `k` has a last one among them, `j₀`, which is
+   at least the `q`-th job on `i`, so Chen's property gives `q · P ≤ q · p_{j₀} ≤ C(τ)` (`p_k ≤ p_{j₀}`); the loads sum
+   to `Σ p ≤ m · C(τ)` and are at least `s + P` on `σ k`, `q · P` on `i` (`key_card_mul_le_sum`) and `s` elsewhere, so
+   `(m − 1) s + (q + 1) P ≤ m · C(τ)`, i.e. `(m − 1) C(σ) ≤ m · C(τ) + (m − q − 2) P`; multiplying by `q` and using
+   `(m − q − 2) q P ≤ (m − q − 2) C(τ)` (the one use of `q + 2 ≤ m`) gives `q (m − 1) C(σ) ≤ ((q + 1)(m − 1) − 1) C(τ)`
+   (`ct_other_scalar`); `q = 0` reads `0 ≤ (m − 2) C(τ)`.
+13. **Dósa's theorem** (`GrahamScaled.lean`, `Equality.lean`, `LPTForm.lean`). *Scaling and relabeling.* Multiplying
+   every length by `a ≥ 0` multiplies every load, the makespan and the optimum by `a` (`gs_loadBefore_smul`,
+   `gs_load_smul`, `gs_makespan_smul`, `gs_optMakespan_smul`), and for `a > 0` preserves the list-schedule property
+   (`gs_isListSchedule_smul_iff`); relabeling the jobs by a permutation preserves the optimum (`gs_optMakespan_comp`:
+   `σ ↦ σ ∘ π` permutes the assignments). *Sufficiency* (`lpt_eq_bound_of_graham`): an equivalence
+   `e : Fin n ≃ Fin (2m + 1)` forces `n = 2m + 1`; with `p = a · grahamJobs m ∘ e` and `π` the sorting permutation of an
+   LPT schedule `σ`, `grahamJobs m ∘ (e ∘ π) = (1/a)(p ∘ π)` is nonincreasing and `σ ∘ π` is a list schedule of it, so
+   `σ ∘ e.symm` is an LPT schedule of `grahamJobs m`, of makespan `4m − 1` (`grahamJobs_lpt_makespan`); hence
+   `C(σ) = a(4m − 1)` and `optMakespan = 3m · a`. *Necessity, the sorted form* (`graham_of_listSchedule_eq_bound`;
+   `p` positive and nonincreasing, `σ` a list schedule, `m ≥ 2`, `3m · C(σ) = (4m − 1) · optMakespan`). Take an optimal
+   `τ`, `T := C(τ) > 0`, a heaviest machine of `σ` and its last job `k`, so that `C(σ) = L_k + p_k`. By 12, `3 p_k = T`,
+   every load before `k` is `L_k`, every load of `τ` is `T`, and no positive job follows `k`: `k` is the last index.
+   Write `t := p_k = T/3`, `δ := t/m`; the equality gives `L_k = 3t − δ =: A`. Every job before `k` is at least `t`;
+   each machine of `σ` holds, among the jobs before `k`, at least one (`A > 0`), at most two (three would exceed `A`),
+   and not exactly one (a single job of length `A` would sit alone on its `τ`-machine, whose load is `T > A`, since every
+   other job exceeds `T − A = δ`): so exactly two, and `k = 2m`, `n = 2m + 1`. A job before `k` and its partner sum to
+   `A`, so every job lies in `[t, 2t − δ]`; each machine of `τ` therefore holds two jobs summing to `3t` or three jobs
+   of length `t`, and since `2m + 1` is odd some machine holds a triple. Counting the jobs of each length `x` before
+   `k` (`c' x`) and overall (`c x = c' x + [x = t]`): the `σ`-pairs give `c' x = c' (A − x)` for every `x`, the
+   `τ`-pairs give `c x = c (3t − x)` for `x ∉ {t, 2t}` (the triple contributes nothing there); along the chain
+   `t + iδ ↦ 2t − iδ ↦ t + (i − 1)δ` these give `c' (t + iδ) = c' t` for `0 ≤ i < m`, with `c' t ≥ 2` from the triple
+   and `m · c' t ≤ 2m` from the `m` disjoint fibers, so each is `2` and they exhaust the `2m` jobs: the lengths are
+   `t` three times and `t + iδ` twice for `1 ≤ i < m`, the fiber counts of `δ · grahamJobs m`. Two nonincreasing
+   functions on `Fin (2m + 1)` with the same fiber counts are equal (`List.ofFn` of each is sorted and the two are
+   permutations of each other: `Fin.univ_val_map`, `Multiset.count_map`, `List.Perm.eq_of_sortedGE`), so
+   `p = δ · grahamJobs m` with `a := δ = T/(3m)`. *The LPT form* (`graham_of_lpt_eq_bound`): the sorting permutation
+   `π` transports the equality to `p ∘ π` (`makespan_comp`, `gs_optMakespan_comp`); the sorted form gives `a`,
+   `h : n = 2m + 1` and `p (π j) = a · grahamJobs m (Fin.cast h j)`, and `e := π.symm.trans (finCongr h)`. The two-way
+   statement (`lpt_eq_bound_iff_graham`) is this with `exists_isLPTSchedule` and sufficiency; for `n ≠ 2m + 1` equality
+   is impossible, an equivalence `Fin n ≃ Fin (2m + 1)` forcing `n = 2m + 1`, so `lpt_bound` is strict
+   (`lpt_lt_bound_of_card_ne`).
+14. **A fixed number of jobs** (`FixedCount.lean`). `fc_jobs m n ε` is Graham's `2m + 1` jobs followed by `n − 2m − 1`
+   jobs of length `ε` (`fc_len`), positive for `ε > 0` (`fc_jobs_pos`) and nonincreasing for `ε ≤ m` (`fc_antitone`).
+   The pairs `j, 2m − 1 − j` of the first `2m` jobs sum to `3m − 1` (`fc_pair`) and those jobs to `3m² − m`
+   (`fc_sum_lt`), so the pairing `j ↦ min(j, 2m − 1 − j)` has every load `3m − 1` before `2m` (`fc_exists_prefix_pairing`);
+   for a list schedule in the family's order the key lemma at `T = 3m − 1 < 3m ≤ 3 p_k`, `k < 2m`, bounds every load
+   before `2m` by `3m − 1`, and the sum forces equality (`fc_loadBefore_two_mul`), so the job `2m`, of length `m`, makes
+   a load `4m − 1` and the makespan is at least `4m − 1` (`fc_le_makespan_listSchedule`); the sorting permutation of an
+   LPT schedule leaves the lengths unchanged (`fc_comp_eq`, `Tuple.unique_antitone`), so every LPT schedule has makespan
+   at least `4m − 1` (`fc_le_makespan_lpt`). The assignment pairing the first `2m − 2` jobs as `j ↦ min(j, 2m − 3 − j)`,
+   the three jobs of length `m` together and the small jobs on one machine has makespan at most `3m + nε`
+   (`fc_exists_opt`), so `optMakespan ≤ 3m + nε` (`fc_optMakespan_le`), and a positive instance has a positive optimum
+   (`fc_optMakespan_pos`). Hence (`isLUB_lpt_ratio_of_card`): every ratio is at most `4/3 − 1/(3m)` (`lpt_le_optMakespan`);
+   for `m = 1` every ratio is `1`; for `m ≥ 2` and `b < 4/3 − 1/(3m)`, a small `ε` makes `(4m − 1)/(3m + nε) > b`, and
+   the family's ratio is at least that.

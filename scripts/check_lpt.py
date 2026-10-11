@@ -7,17 +7,28 @@ jobs, and every tie-breaking is enumerated as a separate branch; the optimum is 
 assignments. Checks: the bounds m*C_LS <= (2m - 1)*C_OPT (every order, every branch) and 3m*C_LPT <= (4m - 1)*C_OPT
 (the sorted order, every branch) on every nonincreasing instance of a small exhaustive sweep and on random rational
 instances, with the ratio 7/6 attained at m = 2; the key lemma (every branch, every job k, every assignment tau of
-the sweep); Graham's family 2m-1, 2m-1, ..., m+1, m+1, m, m, m for m = 1..10 (the sum 3m^2, the pairing of makespan
-3m, the first-2m pairing of loads 3m - 1, every load 3m - 1 after 2m jobs and makespan 4m - 1 on every branch, the
+the sweep; one assignment drawn per job and branch on the random instances); Graham's family 2m-1, 2m-1, ..., m+1,
+m+1, m, m, m for m = 1..10 (the sum 3m^2, the pairing of makespan 3m, the first-2m pairing of loads 3m - 1, every load
+3m - 1 after 2m jobs and makespan 4m - 1 on every branch for m <= 4 and on the lowest-index branch for m = 5..10, the
 explicit order whose list schedule has makespan 3m, the position-to-index map as a bijection); the unit-job family
-for m = 1..8 (the assignment of makespan m, every load m - 1 after the units and makespan 2m - 1 on every branch); the
-brute-force optima of both families for m <= 3; the instance (9, 5, 5, 4, 4, 4) on three machines, whose LPT
-makespan 13 exceeds the optimum 12 with every job at least a third of 12 (the explicit list schedule 0, 1, 2, 1, 2, 0
-and the assignment 0, 1, 1, 2, 2, 2); Chen's property (c + 1) p_k <= OPT for the (c + 1)-th job placed on a machine
-and the Coffman-Sethi form q m C <= ((q + 1) m - 1) OPT for a machine with q jobs attaining the makespan, on every
-branch of the sweep and of random instances; and the optimum over lists (the least makespan over every order and every
-branch equals the optimum) on the sweep. Ends with VERDICT: PASS or VERDICT: FAIL; no check uses assert; exit status 0
-on PASS only.
+for m = 1..8 (the assignment of makespan m, every load m - 1 after the units and makespan 2m - 1 on every branch for
+m <= 4 and on the lowest-index branch for m = 5..8); the brute-force optima of both families for m <= 3; the instance
+(9, 5, 5, 4, 4, 4) on three machines, whose LPT makespan 13 exceeds the optimum 12 with every job at least a third of
+12 (the explicit list schedule 0, 1, 2, 1, 2, 0 and the assignment 0, 1, 1, 2, 2, 2); Chen's property (c + 1) p_k <=
+OPT for the (c + 1)-th job placed on a machine and the Coffman-Sethi form q m C <= ((q + 1) m - 1) OPT for a machine
+with q jobs attaining the makespan, on every branch of the sweep and of random instances; the optimum over lists (the
+least makespan over every order and every branch equals the optimum) on the sweep; the critical job's certificates
+min(C, 3 p_k) <= OPT and C <= 3 p_k => C = OPT, the equality structure and the other-machine bound q (m - 1) C <=
+((q + 1)(m - 1) - 1) OPT, on every branch of the sweep (every assignment tau for n <= 4) and of random instances with
+up to five machines, with a dynamic-programming optimum checked against brute force; Dosa's theorem on the integer
+boxes m = 2 (n <= 7, lengths <= 6) and m = 3 (n <= 8, lengths <= 5): equality 3m C = (4m - 1) OPT on some branch iff
+on every branch iff the instance is a positive multiple of Graham's 2m + 1 jobs, the counting proof's structure at
+every optimal assignment, the integer scale, a zero job appended; the families for a fixed number of jobs (Graham's
+jobs then r small jobs: LPT 4m - 1 on every branch, optimum 3m + ceil(r/m) eps; a times Graham's jobs then r unit
+jobs: LPT max((4m - 1) a, 3ma + ceil(r/m)), optimum 3ma + ceil(r/m)) for m = 2..4; the five-machine instance 90, 90,
+80, 80, 70, 70, 60, 60, 50, 50, 50, 1 (LPT 190 on every branch, optimum 151); and negative controls for the
+other-machine bound's hypotheses. Ends with VERDICT: PASS or VERDICT: FAIL; no check uses assert; exit status 0 on
+PASS only.
 
     python -I scripts/check_lpt.py
 """
@@ -408,6 +419,13 @@ def dosa_sweep():
                     for s in bs:
                         for tau in opts:
                             dosa_structure(p, s, tau, m)
+                    # an integer equality instance is an integer multiple of Graham's (its scale is p_n / m)
+                    check(f"Dosa: integer scale m={m} p={raw}", F(raw[-1], m).denominator == 1)
+                    # a zero job appended keeps the ratio: the positive-length hypothesis is needed
+                    q = p + [F(0)]
+                    check(f"Dosa: a zero job appended keeps equality m={m} p={raw}",
+                          all(3 * m * makespan(q, s, m) == (4 * m - 1) * c_opt for s in branches(q, m))
+                          and opt_states(q, m) == c_opt)
     check("Dosa: the equality instances of the boxes", found == {2: [(6, 6, 4, 4, 4), (3, 3, 2, 2, 2)],
                                                                   3: [(5, 5, 4, 4, 3, 3, 3)]})
     print("Dosa's theorem: equality exactly at", {m: [tuple(int(x) for x in r) for r in v] for m, v in found.items()})
@@ -465,7 +483,18 @@ def fixed_count():
     check("five machines: LPT 190 on every branch", all(makespan(p, s, 5) == 190 for s in branches(p, 5)))
     check("five machines: optimum 151", opt_states(p, 5) == 151)
     check("five machines: 190/151 > 5/4", F(190, 151) > F(5, 4))
-    print("the fixed-count families and the five-machine instance replayed")
+    # negative controls for the other-machine bound's hypotheses: with the count taken over all jobs of the other
+    # machine (the unit job lands there after the critical job) the inequality fails here at q = 3, m = 5 = q + 2 ...
+    s = lowest_index(p, 5)
+    counts = [sum(1 for j in range(len(p)) if s[j] == i) for i in range(5)]
+    check("five machines: the critical job is job 10 on the lowest-index branch",
+          loads_of(p[:10], s[:10], 5)[s[10]] + p[10] == 190 and s[11] != s[10] and counts[s[11]] == 3)
+    check("five machines: the bound fails with the count taken after the critical job", not (3 * 4 * 190 <= 15 * 151))
+    # ... and on Graham's 3, 3, 2, 2, 2 with two machines, q = 1 = m - 1 (q + 2 <= m fails) the bound would read C <= OPT
+    g = graham_jobs(2)
+    check("two machines: q + 2 <= m is needed", all(makespan(g, s, 2) == 7 for s in branches(g, 2)) and opt(g, 2) == 6
+          and all(sum(1 for j in range(4) if s[j] != s[4]) >= 1 for s in branches(g, 2)) and not (1 * 1 * 7 <= (2 * 1 - 1) * 6))
+    print("the fixed-count families, the five-machine instance and the negative controls replayed")
 
 
 if __name__ == "__main__":

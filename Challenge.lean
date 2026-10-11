@@ -4,8 +4,8 @@ public import Mathlib
 
 /-!
 # Graham's bounds for list scheduling and LPT on identical machines: `m·C_LS ≤ (2m − 1)·C_OPT` and
-`3m·C_LPT ≤ (4m − 1)·C_OPT` under every tie-breaking, both equality families for every `m`, and the
-optimality of LPT when every job exceeds a third of the optimum
+`3m·C_LPT ≤ (4m − 1)·C_OPT` under every tie-breaking, both equality families, LPT optimal above a third of
+the optimum, and Dósa's theorem that Graham's example is the only tight one
 
 R. L. Graham, *Bounds for certain multiprocessing anomalies*, Bell System Tech. J. 45 (1966) 1563–1581, and
 *Bounds on multiprocessing timing anomalies*, SIAM J. Appl. Math. 17 (1969) 416–429, both restated with their
@@ -49,7 +49,7 @@ This file states, and `Solution.lean` proves (kernel-only):
 * Graham's `ω₀`, the least finishing time over all lists, equals the optimum over all assignments: every assignment is
   matched or improved by a list schedule in the order of its start times (`exists_listSchedule_le`,
   `isLeast_listSchedule_makespan`);
-* the third is sharp: on three machines the jobs `9, 5, 5, 4, 4, 4`, each at least a third of the optimum `12`, have
+* the third cannot be weakened: on three machines the jobs `9, 5, 5, 4, 4, 4`, each at least a third of the optimum `12`, have
   an LPT schedule of makespan `13` (`nine_five_four_lpt_thirteen`, `nine_five_four_optMakespan`,
   `lpt_third_le_not_optimal`), so neither `n ≤ 2m` jobs nor a weak third makes LPT optimal;
 * the position of a job on its machine: in a list schedule of a nonincreasing `p`, the `(c + 1)`-th job `k` placed on a
@@ -57,7 +57,26 @@ This file states, and `Solution.lean` proves (kernel-only):
   Della Croce and Scatamacchia restate it), hence the Coffman–Sethi form `q·m · C(σ) ≤ ((q + 1)m − 1) · C(τ)` when a
   machine attaining the makespan of an LPT schedule holds `q` jobs (`lpt_bound_of_card`; Coffman–Sethi 1976 as
   corrected by Chen 1993, as Della Croce and Scatamacchia restate it; the literature states it for `q ≥ 3`, for
-  `m ≥ 2` it is weaker than `lpt_bound` at `q ≤ 2`, and its attainment is not proved here).
+  `m ≥ 2` it is weaker than `lpt_bound` at `q ≤ 2`, and its attainment is not proved here);
+* the critical job: for a job `k` whose completion time is the makespan of a list schedule of a nonincreasing `p`,
+  the smaller of `C(σ)` and `3 p_k` is at most `C(τ)` for every `τ`, and `C(σ) ≤ 3 p_k` certifies optimality
+  (`lpt_critical_min_le`, `lpt_eq_optMakespan_of_critical_third`); equality `3m · C(σ) = (4m − 1) · C(τ)` on
+  `m ≥ 2` machines forces `3 p_k = C(τ)`, equal loads before `k`, every load of `τ` equal to `C(τ)` and no positive
+  job after `k` (`lpt_eq_bound_structure`); when another machine holds `q` jobs before `k` and `q + 2 ≤ m`,
+  `q(m − 1) · C(σ) ≤ ((q + 1)(m − 1) − 1) · C(τ)` (`lpt_bound_of_other_card`, Della Croce and Scatamacchia's
+  Proposition 4, proved here from Chen's property);
+* Graham's example is the only tight one (G. Dósa, *Graham's example is the only tight one for P||Cmax*, Annales
+  Univ. Sci. Budapest. Sect. Math. 47 (2004) 207–210, Theorem 2): every positive multiple of Graham's `2m + 1` jobs,
+  in any order, attains the bound (`lpt_eq_bound_of_graham`); for positive lengths on `m ≥ 2` machines, a list
+  schedule of a nonincreasing instance attains `3m · C(σ) = (4m − 1) · optMakespan` only when `n = 2m + 1` and the
+  instance is a positive multiple of `grahamJobs m` (`graham_of_listSchedule_eq_bound`), an LPT schedule of any
+  instance only when the instance is a positive multiple of Graham's jobs in some order (`graham_of_lpt_eq_bound`,
+  `lpt_eq_bound_iff_graham`), and with any number of jobs other than `2m + 1` the inequality is strict
+  (`lpt_lt_bound_of_card_ne`);
+* a fixed number of jobs: for every `n ≥ 2m + 1`, `4/3 − 1/(3m)` is the supremum of `C(σ)/optMakespan` over the LPT
+  schedules of the positive instances with `n` jobs, approached by Graham's jobs followed by `n − 2m − 1` jobs of a
+  common small length (`isLUB_lpt_ratio_of_card`; Dósa's Remark 1 states a strict gap for every `n ≠ 2m + 1`, which
+  can therefore hold at most for `n < 2m + 1`, not formalized here).
 
 Graham's `ω₀` is the least finishing time over all lists; `optMakespan` is the least over all assignments, so the
 bounds here, stated against every assignment, are his by the equality above; for his instance the optimum `3m` is
