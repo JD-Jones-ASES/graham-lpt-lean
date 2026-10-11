@@ -43,7 +43,11 @@ run_cmd do
       `GrahamLPT.lpt_bound, `GrahamLPT.lpt_le_optMakespan, `GrahamLPT.lpt_optimal_of_third_lt,
       `GrahamLPT.lpt_eq_optMakespan_of_third_lt, `GrahamLPT.grahamJobs_antitone,
       `GrahamLPT.grahamJobs_optMakespan, `GrahamLPT.grahamJobs_exists_optimal_listSchedule,
-      `GrahamLPT.grahamJobs_lpt_makespan, `GrahamLPT.isLeast_lpt_ratio] do
+      `GrahamLPT.grahamJobs_lpt_makespan, `GrahamLPT.isLeast_lpt_ratio,
+      `GrahamLPT.exists_listSchedule_le, `GrahamLPT.isLeast_listSchedule_makespan,
+      `GrahamLPT.nine_five_four_lpt_thirteen, `GrahamLPT.nine_five_four_optMakespan,
+      `GrahamLPT.lpt_third_le_not_optimal, `GrahamLPT.lpt_job_position_le,
+      `GrahamLPT.lpt_bound_of_card] do
     unless env.contains n do
       logError m!"Compared theorem is missing from the environment: {n}"
   logInfo m!"Audited {checked} project constants; unexpected axiom dependencies: {rejected}."

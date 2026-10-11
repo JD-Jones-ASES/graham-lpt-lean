@@ -12,7 +12,7 @@ Graham's rule gives a free processor the longest remaining task, a task wanted b
 processors going to the lower-indexed one; the makespan does not depend on the tie-breaking, so every statement
 quantifies over every tie-breaking.
 
-[Challenge.lean](Challenge.lean) states eight definitions and twenty-two theorems; [Solution.lean](Solution.lean)
+[Challenge.lean](Challenge.lean) states eight definitions and twenty-nine theorems; [Solution.lean](Solution.lean)
 proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names each:
 
 - **list scheduling** (Graham 1966, his Theorem for the same number of processors and no precedence constraints, whose
@@ -37,19 +37,28 @@ proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names 
 - **the elementary facts:** list and LPT schedules exist, the optimum is at most every makespan and is attained, every
   load, every job and the average load are at most the makespan, and relabeling the jobs preserves the makespan
   (`exists_isListSchedule`, `exists_isLPTSchedule`, `optMakespan_le`, `exists_makespan_eq_optMakespan`,
-  `load_le_makespan`, `le_makespan_of_nonneg`, `sum_le_mul_makespan`, `makespan_comp`).
+  `load_le_makespan`, `le_makespan_of_nonneg`, `sum_le_mul_makespan`, `makespan_comp`);
+- **the optimum over lists:** every assignment is matched or improved by a list schedule in the order of its start
+  times, so Graham's `ω₀`, the least finishing time over all lists, equals the optimum over all assignments
+  (`exists_listSchedule_le`, `isLeast_listSchedule_makespan`);
+- **the third is sharp:** on three machines the jobs `9, 5, 5, 4, 4, 4`, each at least a third of the optimum `12`,
+  have an LPT schedule of makespan `13` (`nine_five_four_lpt_thirteen`, `nine_five_four_optMakespan`,
+  `lpt_third_le_not_optimal`), so neither `n ≤ 2m` jobs nor a weak third makes LPT optimal (Graham's 1972 survey,
+  Figure 16, prints J. H. Spencer's `6, 3, 3, 2, 2, 2` for the same purpose: decreasing list `7`, optimum `6`);
+- **the position of a job on its machine:** in a list schedule of a nonincreasing `p`, the `(c + 1)`-th job `k` placed
+  on a machine has `(c + 1) · p_k ≤ C(τ)` for every assignment `τ` (`lpt_job_position_le`; the property of Chen 1993,
+  *A note on LPT scheduling*, as Della Croce–Scatamacchia 2020 restate it, Proposition 2; proved here by an invariant on
+  pairs of machines), hence the Coffman–Sethi form: a machine attaining the makespan of an LPT schedule with `k` jobs
+  gives `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` (`lpt_bound_of_card`; Coffman–Sethi 1976 as corrected by Chen 1993; the
+  bound is attained only for `k ≥ 3`, Chen's `4/3 − 1/(3(m − 1))` being stronger at `k = 2`, which is not proved here).
 
-Graham's `ω₀` is the least finishing time over all lists; `optMakespan` is the least over all assignments, which is at
-most `ω₀`, so the bounds here are the stronger form, and for his instance the optimum `3m` is attained by a list. Lengths
-are nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966 nonnegative ones). The proof of the
-LPT bound is by counting, not by his exchange argument: with `k` the job ending a heaviest machine, the average-load
-bound settles `3 p_k ≤ C(τ)`, and otherwise a count of the jobs up to `k` — every machine of `τ` holds at most two of
-them, those at least as long as the least load sit alone, each single-job machine of `σ` contributes one of them — shows
-that `k`'s machine ends by `C(τ)` ([PROOF.md](PROOF.md)). The hypothesis of the optimality theorem cannot be dropped to
-"at most `2m` jobs": Graham's 1972 survey (Figure 16, an example of J. H. Spencer) runs `6, 3, 3, 2, 2, 2` on three
-machines, where the decreasing list ends at `7` and the optimum is `6`. Not claimed: the equality `ω₀ = optMakespan` in
-general; Coffman–Sethi's refinement; Graham's bound `1 + (1 − 1/m)/(1 + ⌊k/m⌋)` for scheduling the `k` largest jobs
-optimally first; precedence constraints; any "first". The nearest formal work: the Isabelle AFP's
+Lengths are nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966 nonnegative ones). The proof
+of the LPT bound is by counting, not by his exchange argument: with `k` the job ending a heaviest machine, the
+average-load bound settles `3 p_k ≤ C(τ)`, and otherwise a count of the jobs up to `k` — every machine of `τ` holds at
+most two of them, those at least as long as the least load sit alone, each single-job machine of `σ` contributes one of
+them — shows that `k`'s machine ends by `C(τ)` ([PROOF.md](PROOF.md)). Not claimed: Chen's `k = 2` bound; Graham's
+bound `1 + (1 − 1/m)/(1 + ⌊k/m⌋)` for scheduling the `k` largest jobs optimally first; precedence constraints; any
+"first". The nearest formal work: the Isabelle AFP's
 `Approximation_Algorithms` (Eßmann–Nipkow–Robillard–Sulejmani) proves a `3/2` bound for sorted greedy and `2` for
 greedy; two Lean repositories (AshishKumar4/armada, coproduct-opensource/nucleus) prove `m · C ≤ Σ p + (m − 1) · p_max`
 over lists of naturals; fbz321/LLM-FOR-SCHEDULING names the LPT ratio as a stub. No code is shared with any of them.

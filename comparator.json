@@ -23,7 +23,14 @@
     "GrahamLPT.grahamJobs_optMakespan",
     "GrahamLPT.grahamJobs_exists_optimal_listSchedule",
     "GrahamLPT.grahamJobs_lpt_makespan",
-    "GrahamLPT.isLeast_lpt_ratio"
+    "GrahamLPT.isLeast_lpt_ratio",
+    "GrahamLPT.exists_listSchedule_le",
+    "GrahamLPT.isLeast_listSchedule_makespan",
+    "GrahamLPT.nine_five_four_lpt_thirteen",
+    "GrahamLPT.nine_five_four_optMakespan",
+    "GrahamLPT.lpt_third_le_not_optimal",
+    "GrahamLPT.lpt_job_position_le",
+    "GrahamLPT.lpt_bound_of_card"
   ],
   "definition_names": [],
   "permitted_axioms": [

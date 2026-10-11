@@ -15,6 +15,8 @@ each theorem). This module does not import `Challenge.lean`; the definitions com
 
 namespace GrahamLPT
 
+open Finset
+
 theorem exists_isListSchedule {m n : ℕ} [NeZero m] (p : Fin n → ℝ) :
     ∃ σ : Fin n → Fin m, IsListSchedule p σ :=
   exists_isListSchedule_internal p
@@ -108,5 +110,40 @@ theorem isLeast_lpt_ratio (m : ℕ) [NeZero m] :
     IsLeast {c : ℝ | ∀ (n : ℕ) (p : Fin n → ℝ) (σ τ : Fin n → Fin m), (∀ j, 0 ≤ p j) →
       IsLPTSchedule p σ → makespan p σ ≤ c * makespan p τ} (4 / 3 - 1 / (3 * m)) :=
   isLeast_lpt_ratio_internal m
+
+theorem exists_listSchedule_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (τ : Fin n → Fin m) :
+    ∃ (π : Equiv.Perm (Fin n)) (σ : Fin n → Fin m),
+      IsListSchedule (p ∘ π) (σ ∘ π) ∧ makespan p σ ≤ makespan p τ :=
+  exists_listSchedule_le_internal p hp τ
+
+theorem isLeast_listSchedule_makespan {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) :
+    IsLeast ((fun σ : Fin n → Fin m => makespan p σ) ''
+      {σ | ∃ π : Equiv.Perm (Fin n), IsListSchedule (p ∘ π) (σ ∘ π)}) (optMakespan m p) :=
+  isLeast_listSchedule_makespan_internal p hp
+
+theorem nine_five_four_lpt_thirteen :
+    IsLPTSchedule (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) ∧
+      makespan (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) = 13 :=
+  nine_five_four_lpt_thirteen_internal
+
+theorem nine_five_four_optMakespan : optMakespan 3 (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) = 12 :=
+  nine_five_four_optMakespan_internal
+
+theorem lpt_third_le_not_optimal :
+    ∃ (p : Fin 6 → ℝ) (σ : Fin 6 → Fin 3), (∀ j, 0 ≤ p j) ∧ IsLPTSchedule p σ ∧
+      (∀ j, optMakespan 3 p ≤ 3 * p j) ∧ optMakespan 3 p < makespan p σ :=
+  lpt_third_le_not_optimal_internal
+
+theorem lpt_job_position_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (τ : Fin n → Fin m) :
+    (((univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = σ k)).card : ℝ) + 1) * p k ≤ makespan p τ :=
+  lpt_job_position_le_internal p hp hanti σ hσ k τ
+
+theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (τ : Fin n → Fin m) (i : Fin m)
+    (hi : load p σ i = makespan p σ) :
+    ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) * m * makespan p σ ≤
+      (((univ.filter (fun j : Fin n => σ j = i)).card + 1) * m - 1) * makespan p τ :=
+  lpt_bound_of_card_internal p hp σ hσ τ i hi
 
 end GrahamLPT

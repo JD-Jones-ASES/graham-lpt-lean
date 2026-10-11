@@ -163,4 +163,17 @@ theorem cx_third_le_not_optimal :
   · rw [cx_opt_twelve, cx_lpt_thirteen.2]
     norm_num
 
+theorem nine_five_four_lpt_thirteen_internal :
+    IsLPTSchedule (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) ∧
+      makespan (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) = 13 :=
+  cx_lpt_thirteen
+
+theorem nine_five_four_optMakespan_internal : optMakespan 3 (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) = 12 :=
+  cx_opt_twelve
+
+theorem lpt_third_le_not_optimal_internal :
+    ∃ (p : Fin 6 → ℝ) (σ : Fin 6 → Fin 3), (∀ j, 0 ≤ p j) ∧ IsLPTSchedule p σ ∧
+      (∀ j, optMakespan 3 p ≤ 3 * p j) ∧ optMakespan 3 p < makespan p σ :=
+  cx_third_le_not_optimal
+
 end GrahamLPT

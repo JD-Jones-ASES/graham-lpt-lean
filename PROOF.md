@@ -92,3 +92,35 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
    divided by `m`; for any constant `c` in the set, the unit-job family with a list schedule (`exists_isListSchedule`) and an
    optimal `τ` gives `2m − 1 ≤ c · m` (`isLeast_listSchedule_ratio`). Likewise `4/3 − 1/(3m)` with `lpt_bound`, and
    Graham's family with an LPT schedule (`exists_isLPTSchedule`) and an optimal `τ`: `4m − 1 ≤ c · 3m` (`isLeast_lpt_ratio`).
+9. **The optimum over lists** (`ListOptimum.lean`). Given an assignment `τ`, run each of its machines without idle time in
+   index order: job `j` starts at `s j := loadBefore p τ j (τ j)` and ends at `s j + p j ≤ C(τ)`, and two jobs of one
+   machine do not overlap. Sort the jobs by start time (`π := Tuple.sort s`) and take any list schedule `σ'` of `p ∘ π`.
+   In an order by nondecreasing start times, a list schedule starts every job `k` of positive length no later than `s k`
+   (`lo_core`, by strong induction): otherwise every machine's load before `k` exceeds `s k`, so each machine of the list
+   schedule carries an earlier job still running at time `s k` (`lo_exists_cover`); by induction those jobs started no
+   later than their own `τ`-start times, so under `τ` they are all running at time `s k` as well — `m` distinct jobs on
+   `m` machines, one of them on `τ k`'s machine, overlapping `k`, which is impossible. Hence every load of the list
+   schedule is at most `C(τ)` (`lo_makespan_le`), and `makespan_comp` transfers to `σ := σ' ∘ π.symm`
+   (`exists_listSchedule_le`); at an optimal `τ` this makes `optMakespan` the least makespan over the list schedules of all
+   orders (`isLeast_listSchedule_makespan`).
+10. **The third is sharp** (`Counter.lean`). For `9, 5, 5, 4, 4, 4` on three machines the assignment `0, 1, 2, 1, 2, 0`
+   is a list schedule (the eighteen inequalities by `fin_cases` and `norm_num`), hence an LPT schedule with `π = 1`, and
+   its loads are `13, 9, 9` (`nine_five_four_lpt_thirteen`). Every assignment has makespan at least `12`: if the job `9`
+   shares its machine the load is at least `13`; otherwise the three `4`s either share one machine (`12`) or two of them
+   share a machine and the third sits on another, and then a `5` on the first gives `13` or both `5`s on the second give
+   `14` (`cx_twelve_le_makespan`); the assignment `0, 1, 1, 2, 2, 2` has makespan `12` (`nine_five_four_optMakespan`).
+   Every job is at least `12/3`, so the instance is the sharpness witness (`lpt_third_le_not_optimal`).
+11. **Chen's property and the Coffman–Sethi form** (`CoffmanSethi.lean`). Fix the job `k` of positive length `P := p k`
+   in a list schedule of a nonincreasing `p`; every earlier job is at least `P`. Weigh a job `x` by `⌊x/P⌋` (`cs_fl` sums
+   the weights of a machine's jobs before a cutoff, `cs_cnt` counts them). For two machines `h, g`, the restriction of the
+   schedule to them is again a list schedule, and the invariant `cs_Inv` holds along it: with `D` the load difference, `Φ`
+   the weight of `h` minus the count of `g`, and `y` the last job placed, `⌊D/P⌋ ≤ Φ` when `D ≥ 0`, and `−1 ≤ Φ` with
+   `⌊(D + y)/P⌋ − 1 ≤ Φ` when `D < 0` (`cs_inv_all`, by the two placement cases `cs_inv_istep`, `cs_inv_hstep`; the
+   `y`-dependent clause is what a plain floor potential lacks). Taking `g := σ k`, the least-loaded machine when `k` is
+   placed, every machine weighs at least `c`, the number of jobs before `k` on `σ k` (`cs_cnt_le_fl_of_min`). If
+   `C(τ) < (c + 1) P`, each `τ`-machine weighs at most `⌊load/P⌋ ≤ c`, so the jobs up to `k` weigh at most `mc`; but they
+   weigh at least `mc + 1` (job `k` itself weighs `1`): contradiction, so `(c + 1) P ≤ C(τ)` (`cs_job_le`,
+   `lpt_job_position_le`). For a machine `i` attaining the makespan with `k ≥ 1` jobs, its last job `q` is the `k`-th on
+   it, so `k · p_q ≤ C(τ)`, and `m · C(σ) = m(L_q + p_q) ≤ Σ p + (m − 1) p_q ≤ m · C(τ) + (m − 1) C(τ)/k` gives
+   `km · C(σ) ≤ ((k + 1)m − 1) · C(τ)` (`cs_bound`; `k = 0` is the empty machine); relabeling gives the LPT form
+   (`lpt_bound_of_card`).

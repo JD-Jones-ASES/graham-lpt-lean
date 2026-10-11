@@ -343,7 +343,7 @@ theorem cs_bound {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p
 /-- The Coffman–Sethi form for LPT schedules (Coffman–Sethi 1976 as corrected by Chen 1993): for nonnegative
 lengths, an LPT schedule `σ`, a machine `i` attaining its makespan and holding `k` jobs, and every assignment `τ`,
 `k·m·C(σ) ≤ ((k + 1)m − 1)·C(τ)`. -/
-theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+theorem lpt_bound_of_card_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
     (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (τ : Fin n → Fin m) (i : Fin m)
     (hi : load p σ i = makespan p σ) :
     ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) * m * makespan p σ ≤
@@ -356,5 +356,10 @@ theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j
       (univ.filter (fun j : Fin n => σ j = i)).card :=
     Finset.card_equiv π (fun j => by simp)
   rwa [hcard, makespan_comp_internal, makespan_comp_internal] at h
+
+theorem lpt_job_position_le_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (τ : Fin n → Fin m) :
+    (((univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = σ k)).card : ℝ) + 1) * p k ≤ makespan p τ :=
+  cs_job_le p hp hanti σ hσ k τ
 
 end GrahamLPT

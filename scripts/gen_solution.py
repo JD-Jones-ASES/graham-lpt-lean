@@ -28,6 +28,8 @@ each theorem). This module does not import `Challenge.lean`; the definitions com
 
 namespace GrahamLPT
 
+open Finset
+
 '''
 
 def explicit_names(header):

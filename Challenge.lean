@@ -45,10 +45,22 @@ This file states, and `Solution.lean` proves (kernel-only):
 * the elementary facts the bounds rest on: list schedules and LPT schedules exist, the optimum is attained, and every
   load, every job and the average load `(Σ p)/m` are at most the makespan (`exists_isListSchedule`,
   `exists_isLPTSchedule`, `optMakespan_le`, `exists_makespan_eq_optMakespan`, `load_le_makespan`,
-  `le_makespan_of_nonneg`, `sum_le_mul_makespan`, `makespan_comp`).
+  `le_makespan_of_nonneg`, `sum_le_mul_makespan`, `makespan_comp`);
+* Graham's `ω₀`, the least finishing time over all lists, equals the optimum over all assignments: every assignment is
+  matched or improved by a list schedule in the order of its start times (`exists_listSchedule_le`,
+  `isLeast_listSchedule_makespan`);
+* the third is sharp: on three machines the jobs `9, 5, 5, 4, 4, 4`, each at least a third of the optimum `12`, have
+  an LPT schedule of makespan `13` (`nine_five_four_lpt_thirteen`, `nine_five_four_optMakespan`,
+  `lpt_third_le_not_optimal`), so neither `n ≤ 2m` jobs nor a weak third makes LPT optimal;
+* the position of a job on its machine: in a list schedule of a nonincreasing `p`, the `(c + 1)`-th job `k` placed on a
+  machine has `(c + 1) · p_k ≤ C(τ)` for every assignment `τ` (`lpt_job_position_le`, the property of Chen 1993 as
+  Della Croce and Scatamacchia restate it), hence the Coffman–Sethi form `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` when a
+  machine attaining the makespan of an LPT schedule holds `k` jobs (`lpt_bound_of_card`; Coffman–Sethi 1976, corrected
+  by Chen 1993; attained only for `k ≥ 3`).
 
-Graham's `ω₀` is the least finishing time over all lists; `optMakespan` is the least over all assignments, which is at
-most `ω₀`, so the bounds here are in the stronger form; for his instance the optimum `3m` is attained by a list. The
+Graham's `ω₀` is the least finishing time over all lists; `optMakespan` is the least over all assignments, so the
+bounds here, stated against every assignment, are his by the equality above; for his instance the optimum `3m` is
+attained by an explicit list. The
 proof of the LPT bound here is not Graham's exchange argument: when the job `k` that ends a heaviest machine satisfies
 `3 p_k ≤ C(τ)`, the average-load bound gives the ratio directly; otherwise a counting argument shows that `k`'s machine
 ends by `C(τ)` (every job before `k` at least as long as `k`, every `τ`-machine holding at most two of the jobs up to
@@ -200,5 +212,55 @@ instance on `m` machines and every assignment `τ`. -/
 theorem isLeast_lpt_ratio (m : ℕ) [NeZero m] :
     IsLeast {c : ℝ | ∀ (n : ℕ) (p : Fin n → ℝ) (σ τ : Fin n → Fin m), (∀ j, 0 ≤ p j) →
       IsLPTSchedule p σ → makespan p σ ≤ c * makespan p τ} (4 / 3 - 1 / (3 * m)) := sorry
+
+/-! ## The optimum over lists -/
+
+/-- Graham's `ω₀` is attained: for nonnegative lengths, every assignment `τ` is matched or improved by a list schedule
+in some order (the jobs listed by their start times when each machine of `τ` runs its jobs in index order). -/
+theorem exists_listSchedule_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (τ : Fin n → Fin m) :
+    ∃ (π : Equiv.Perm (Fin n)) (σ : Fin n → Fin m),
+      IsListSchedule (p ∘ π) (σ ∘ π) ∧ makespan p σ ≤ makespan p τ := sorry
+
+/-- The optimal makespan is the least makespan over the list schedules in all orders: Graham's `ω₀`, the least
+finishing time over all lists, equals the optimum over all assignments. -/
+theorem isLeast_listSchedule_makespan {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) :
+    IsLeast ((fun σ : Fin n → Fin m => makespan p σ) ''
+      {σ | ∃ π : Equiv.Perm (Fin n), IsListSchedule (p ∘ π) (σ ∘ π)}) (optMakespan m p) := sorry
+
+/-! ## The third cannot be weakened -/
+
+/-- On three machines the assignment `0, 1, 2, 1, 2, 0` of the jobs `9, 5, 5, 4, 4, 4` is an LPT schedule (the identity
+order, lowest-index ties) of makespan `13`. -/
+theorem nine_five_four_lpt_thirteen :
+    IsLPTSchedule (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) ∧
+      makespan (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) = 13 := sorry
+
+/-- The jobs `9, 5, 5, 4, 4, 4` have optimal makespan `12` on three machines (`9 | 5, 5 | 4, 4, 4`). -/
+theorem nine_five_four_optMakespan : optMakespan 3 (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) = 12 := sorry
+
+/-- The strict third in `lpt_optimal_of_third_lt` cannot be weakened to `≤`, and `n ≤ 2m` jobs do not make LPT
+optimal: an instance on three machines whose six jobs are each at least a third of the optimal makespan, with an
+LPT schedule longer than the optimum. -/
+theorem lpt_third_le_not_optimal :
+    ∃ (p : Fin 6 → ℝ) (σ : Fin 6 → Fin 3), (∀ j, 0 ≤ p j) ∧ IsLPTSchedule p σ ∧
+      (∀ j, optMakespan 3 p ≤ 3 * p j) ∧ optMakespan 3 p < makespan p σ := sorry
+
+/-! ## The position of a job on its machine: Chen's property and the Coffman–Sethi form -/
+
+/-- In a list schedule of a nonincreasing `p`, a job `k` that is the `(c + 1)`-th job placed on its machine satisfies
+`(c + 1) · p k ≤ C(τ)` for every assignment `τ` (the property Chen 1993 derives the bounds from, as Della Croce and
+Scatamacchia restate it; proved here by an invariant on pairs of machines). -/
+theorem lpt_job_position_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
+    (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (τ : Fin n → Fin m) :
+    (((univ.filter (fun j : Fin n => (j : ℕ) < k ∧ σ j = σ k)).card : ℝ) + 1) * p k ≤ makespan p τ := sorry
+
+/-- The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `k` jobs,
+then `k·m · C(σ) ≤ ((k + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993;
+the bound is attained only for `k ≥ 3`, Chen's `4/3 − 1/(3(m − 1))` being stronger at `k = 2`). -/
+theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (τ : Fin n → Fin m) (i : Fin m)
+    (hi : load p σ i = makespan p σ) :
+    ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) * m * makespan p σ ≤
+      (((univ.filter (fun j : Fin n => σ j = i)).card + 1) * m - 1) * makespan p τ := sorry
 
 end GrahamLPT

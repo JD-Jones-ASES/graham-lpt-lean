@@ -189,4 +189,15 @@ theorem lo_optMakespan_eq {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j
   · rintro c ⟨σ, -, rfl⟩
     exact optMakespan_le_internal p σ
 
+theorem exists_listSchedule_le_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
+    (τ : Fin n → Fin m) :
+    ∃ (π : Equiv.Perm (Fin n)) (σ : Fin n → Fin m),
+      IsListSchedule (p ∘ π) (σ ∘ π) ∧ makespan p σ ≤ makespan p τ :=
+  lo_exists_listSchedule_le p hp τ
+
+theorem isLeast_listSchedule_makespan_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) :
+    IsLeast ((fun σ : Fin n → Fin m => makespan p σ) ''
+      {σ | ∃ π : Equiv.Perm (Fin n), IsListSchedule (p ∘ π) (σ ∘ π)}) (optMakespan m p) :=
+  lo_optMakespan_eq p hp
+
 end GrahamLPT
