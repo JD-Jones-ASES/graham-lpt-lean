@@ -33,28 +33,14 @@ theorem ol_index_bijective (m : ℕ) : Function.Bijective (ol_index m) := by
   rw [Fin.ext_iff]
   split_ifs at h <;> simp only [Fin.mk.injEq] at h <;> omega
 
-/-- The machine of each position: `i` for `i < m − 1`; the last machine for positions `m − 1`, `m` and `2m`;
-`m − 2 − a` for position `m + 1 + a`. -/
-def ol_machine (m : ℕ) [NeZero m] (i : Fin (2 * m + 1)) : Fin m :=
-  if h₁ : (i : ℕ) < m - 1 then ⟨i, by omega⟩
-  else if h₂ : (i : ℕ) ≤ m then ⟨m - 1, by have := NeZero.pos m; omega⟩
-  else if h₃ : (i : ℕ) < 2 * m then ⟨2 * m - 1 - i, by have := NeZero.pos m; omega⟩
-  else ⟨m - 1, by have := NeZero.pos m; omega⟩
-
-/-- In the explicit order, the schedule `ol_machine` is a list schedule. -/
-theorem ol_isListSchedule (m : ℕ) [NeZero m] :
-    IsListSchedule (grahamJobs m ∘ ol_index m) (ol_machine m) := sorry
-
-/-- Its makespan is `3m`. -/
-theorem ol_makespan (m : ℕ) [NeZero m] : makespan (grahamJobs m ∘ ol_index m) (ol_machine m) = 3 * m := sorry
-
 /-- The machine of each position, as a natural number: `i` for `i < m − 1`; the last machine `m − 1` for positions
 `m − 1`, `m` and `2m`; `2m − 1 − i` (that is, `m − 2 − a`) for position `m + 1 + a`. -/
 def ol_machN (m i : ℕ) : ℕ :=
   if i < m - 1 then i else if i ≤ m then m - 1 else if i < 2 * m then 2 * m - 1 - i else m - 1
 
-/-- The corrected machine map: position `m + 1 + a` goes to machine `m − 2 − a`, the least loaded one. -/
-def ol_machineFix (m : ℕ) [NeZero m] (i : Fin (2 * m + 1)) : Fin m :=
+/-- The machine of each position: `i` for `i < m − 1`; the last machine for positions `m − 1`, `m` and `2m`;
+`m − 2 − a` (that is, `2m − 1 − i`) for position `i = m + 1 + a`, the least loaded one at that step. -/
+def ol_machine (m : ℕ) [NeZero m] (i : Fin (2 * m + 1)) : Fin m :=
   ⟨ol_machN m i, by have := NeZero.pos m; unfold ol_machN; split_ifs <;> omega⟩
 
 /-- The length of the job at each position, as a natural number. -/
@@ -101,16 +87,16 @@ theorem ol_q (m : ℕ) [NeZero m] (j : Fin (2 * m + 1)) : grahamJobs m (ol_index
     simp only [grahamJobs, ol_qN, h₁, hle, h₄, hA, ite_false]
 
 theorem ol_loadBefore (m : ℕ) [NeZero m] (k : ℕ) (b : Fin m) :
-    loadBefore (grahamJobs m ∘ ol_index m) (ol_machineFix m) k b = (ol_loadN m k b : ℝ) := by
+    loadBefore (grahamJobs m ∘ ol_index m) (ol_machine m) k b = (ol_loadN m k b : ℝ) := by
   have hm := NeZero.pos m
   have hbm := b.isLt
   by_cases hb : (b : ℕ) < m - 1
-  · have hfib : univ.filter (fun j : Fin (2 * m + 1) => (j : ℕ) < k ∧ ol_machineFix m j = b) =
+  · have hfib : univ.filter (fun j : Fin (2 * m + 1) => (j : ℕ) < k ∧ ol_machine m j = b) =
         ({⟨b, by omega⟩, ⟨2 * m - 1 - b, by omega⟩} : Finset (Fin (2 * m + 1))).filter
           (fun j : Fin (2 * m + 1) => (j : ℕ) < k) := by
       ext j
       have hj := j.isLt
-      simp only [mem_filter, mem_univ, true_and, mem_insert, mem_singleton, Fin.ext_iff, ol_machineFix,
+      simp only [mem_filter, mem_univ, true_and, mem_insert, mem_singleton, Fin.ext_iff, ol_machine,
         ol_machN]
       split_ifs <;> omega
     rw [loadBefore, hfib, sum_filter, sum_pair (by simp only [ne_eq, Fin.ext_iff]; omega)]
@@ -122,12 +108,12 @@ theorem ol_loadBefore (m : ℕ) [NeZero m] (k : ℕ) (b : Fin m) :
     rw [ite_eq_left hb]
     split_ifs <;> push_cast [Nat.cast_add] <;> ring
   · have hb' : (b : ℕ) = m - 1 := by omega
-    have hfib : univ.filter (fun j : Fin (2 * m + 1) => (j : ℕ) < k ∧ ol_machineFix m j = b) =
+    have hfib : univ.filter (fun j : Fin (2 * m + 1) => (j : ℕ) < k ∧ ol_machine m j = b) =
         ({⟨m - 1, by omega⟩, ⟨m, by omega⟩, ⟨2 * m, by omega⟩} : Finset (Fin (2 * m + 1))).filter
           (fun j : Fin (2 * m + 1) => (j : ℕ) < k) := by
       ext j
       have hj := j.isLt
-      simp only [mem_filter, mem_univ, true_and, mem_insert, mem_singleton, Fin.ext_iff, ol_machineFix,
+      simp only [mem_filter, mem_univ, true_and, mem_insert, mem_singleton, Fin.ext_iff, ol_machine,
         ol_machN]
       split_ifs <;> omega
     have hnot : (⟨m - 1, by omega⟩ : Fin (2 * m + 1)) ∉ ({⟨m, by omega⟩, ⟨2 * m, by omega⟩} : Finset _) := by
@@ -149,15 +135,15 @@ theorem ol_listN (m k b : ℕ) (hk : k ≤ 2 * m) (hb : b < m) :
   unfold ol_loadN ol_machN
   split_ifs <;> omega
 
-/-- In the explicit order, the corrected schedule `ol_machineFix` is a list schedule. -/
-theorem ol_isListScheduleFix (m : ℕ) [NeZero m] :
-    IsListSchedule (grahamJobs m ∘ ol_index m) (ol_machineFix m) := by
+/-- In the explicit order, the schedule `ol_machine` is a list schedule. -/
+theorem ol_isListSchedule (m : ℕ) [NeZero m] :
+    IsListSchedule (grahamJobs m ∘ ol_index m) (ol_machine m) := by
   intro k i
   rw [ol_loadBefore, ol_loadBefore]
   exact_mod_cast ol_listN m k i (by have := k.isLt; omega) i.isLt
 
 theorem ol_load (m : ℕ) [NeZero m] (b : Fin m) :
-    load (grahamJobs m ∘ ol_index m) (ol_machineFix m) b = 3 * (m : ℝ) := by
+    load (grahamJobs m ∘ ol_index m) (ol_machine m) b = 3 * (m : ℝ) := by
   rw [← bs_loadBefore_of_le _ _ (2 * m + 1) le_rfl, ol_loadBefore]
   have hb := b.isLt
   have : ol_loadN m (2 * m + 1) b = 3 * m := by unfold ol_loadN; split_ifs <;> omega
@@ -165,9 +151,9 @@ theorem ol_load (m : ℕ) [NeZero m] (b : Fin m) :
   push_cast
   ring
 
-/-- The corrected schedule has makespan `3m`. -/
-theorem ol_makespanFix (m : ℕ) [NeZero m] :
-    makespan (grahamJobs m ∘ ol_index m) (ol_machineFix m) = 3 * m := by
+/-- Its makespan is `3m`. -/
+theorem ol_makespan (m : ℕ) [NeZero m] :
+    makespan (grahamJobs m ∘ ol_index m) (ol_machine m) = 3 * m := by
   apply le_antisymm
   · rw [bs_makespan_le_iff]
     intro i
@@ -182,13 +168,13 @@ theorem grahamJobs_exists_optimal_listSchedule_internal (m : ℕ) [NeZero m] :
       IsListSchedule (grahamJobs m ∘ π) (σ ∘ π) ∧ makespan (grahamJobs m) σ = 3 * m := by
   let π : Equiv.Perm (Fin (2 * m + 1)) := Equiv.ofBijective _ (ol_index_bijective m)
   have hπ : (π : Fin (2 * m + 1) → Fin (2 * m + 1)) = ol_index m := rfl
-  have hσ : (ol_machineFix m ∘ π.symm) ∘ π = ol_machineFix m := by
+  have hσ : (ol_machine m ∘ π.symm) ∘ π = ol_machine m := by
     funext j
     simp
-  refine ⟨π, ol_machineFix m ∘ π.symm, ?_, ?_⟩
+  refine ⟨π, ol_machine m ∘ π.symm, ?_, ?_⟩
   · rw [hσ, hπ]
-    exact ol_isListScheduleFix m
-  · rw [← makespan_comp_internal (grahamJobs m) (ol_machineFix m ∘ π.symm) π, hσ, hπ]
-    exact ol_makespanFix m
+    exact ol_isListSchedule m
+  · rw [← makespan_comp_internal (grahamJobs m) (ol_machine m ∘ π.symm) π, hσ, hπ]
+    exact ol_makespan m
 
 end GrahamLPT
