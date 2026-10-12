@@ -2,7 +2,7 @@
 version: "v0.4"
 
 project:
-  name: "Graham's bounds for list scheduling and LPT on identical machines: m*C_LS <= (2m - 1)*C_OPT and 3m*C_LPT <= (4m - 1)*C_OPT under every tie-breaking, both equality families, LPT optimal above a third of the optimum, and Dósa's theorem that Graham's example is the only tight one"
+  name: "Graham's bounds for list scheduling and LPT on identical machines: 2 − 1/m, 4/3 − 1/(3m) and their tight instances"
   description: >-
     A Lean 4 development of Graham's two bounds for scheduling independent jobs on identical machines to minimize
     the makespan (R. L. Graham, Bounds for certain multiprocessing anomalies, Bell System Tech. J. 45 (1966)

@@ -1,4 +1,4 @@
-# Graham's bounds for list scheduling and LPT on identical machines: `m·C_LS ≤ (2m − 1)·C_OPT` and `3m·C_LPT ≤ (4m − 1)·C_OPT` under every tie-breaking, both equality families, LPT optimal above a third of the optimum, and Dósa's theorem that Graham's example is the only tight one
+# Graham's bounds for list scheduling and LPT on identical machines: 2 − 1/m, 4/3 − 1/(3m) and their tight instances
 
 `n` jobs of nonnegative real lengths `p : Fin n → ℝ` are run without interruption on `m ≥ 1` identical machines. An
 assignment `σ : Fin n → Fin m` loads machine `i` with `Σ_{σ j = i} p j`; its makespan is the largest load;
