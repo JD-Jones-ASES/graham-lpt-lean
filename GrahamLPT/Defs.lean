@@ -46,6 +46,17 @@ def IsLPTSchedule {m n : ℕ} (p : Fin n → ℝ) (σ : Fin n → Fin m) : Prop 
 def grahamJobs (m : ℕ) : Fin (2 * m + 1) → ℝ := fun j =>
   if (j : ℕ) < 2 * m then 2 * (m : ℝ) - 1 - (((j : ℕ) / 2 : ℕ) : ℝ) else (m : ℝ)
 
+/-- The order `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` of Graham's instance, as the job at each position:
+position `i < m − 1` holds job `2i` (length `2m − 1 − i`), positions `m − 1` and `m` hold jobs `2m − 2` and `2m − 1`
+(length `m`), position `m + 1 + a` with `a < m − 1` holds job `2a + 1` (length `2m − 1 − a`), and position `2m` holds
+job `2m` (length `m`). -/
+def grahamOrder (m : ℕ) (i : Fin (2 * m + 1)) : Fin (2 * m + 1) :=
+  if h : (i : ℕ) < m - 1 then ⟨2 * i, by omega⟩
+  else if (i : ℕ) = m - 1 then ⟨2 * m - 2, by omega⟩
+  else if (i : ℕ) = m then ⟨2 * m - 1, by omega⟩
+  else if h' : (i : ℕ) < 2 * m then ⟨2 * ((i : ℕ) - m - 1) + 1, by omega⟩
+  else ⟨2 * m, by omega⟩
+
 /-- Graham's instance for list scheduling: `m(m − 1)` unit jobs followed by one job of length `m`. -/
 def unitJobs (m : ℕ) : Fin (m * (m - 1) + 1) → ℝ := fun j =>
   if (j : ℕ) < m * (m - 1) then 1 else (m : ℝ)

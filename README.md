@@ -12,7 +12,7 @@ Graham's rule gives a free processor the longest remaining task, a task wanted b
 processors going to the lower-indexed one; the makespan does not depend on the tie-breaking, so every statement
 quantifies over every tie-breaking.
 
-[Challenge.lean](Challenge.lean) states eight definitions and thirty-nine theorems; [Solution.lean](Solution.lean)
+[Challenge.lean](Challenge.lean) states nine definitions and forty-one theorems; [Solution.lean](Solution.lean)
 proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names each:
 
 - **list scheduling** (Graham 1966, his Theorem for the same number of processors and no precedence constraints, whose
@@ -30,17 +30,17 @@ proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names 
   task exceeds a third of the optimum (Lenstra–Shmoys's case (ii), p. 189), stated as a theorem
   (`lpt_optimal_of_third_lt`, `lpt_eq_optMakespan_of_third_lt`); Graham's `2m + 1` jobs
   `2m − 1, 2m − 1, 2m − 2, 2m − 2, …, m + 1, m + 1, m, m, m` (his pp. 425–426) are in nonincreasing order, have optimum
-  `3m`, attained by a list schedule in the order `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m`, and every LPT schedule
-  of them has makespan `4m − 1`, for every `m ≥ 1` (`grahamJobs_antitone`, `grahamJobs_optMakespan`,
-  `grahamJobs_exists_optimal_listSchedule`, `grahamJobs_lpt_makespan`), so `4/3 − 1/(3m)` is the least constant
-  (`isLeast_lpt_ratio`);
+  `3m`, attained by a list schedule in the order `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` (the permutation
+  `grahamOrder`: `grahamOrder_bijective`, `grahamJobs_grahamOrder`), and every LPT schedule of them has makespan
+  `4m − 1`, for every `m ≥ 1` (`grahamJobs_antitone`, `grahamJobs_optMakespan`, `grahamJobs_exists_optimal_listSchedule`,
+  `grahamJobs_lpt_makespan`), so `4/3 − 1/(3m)` is the least constant (`isLeast_lpt_ratio`);
 - **the elementary facts:** list and LPT schedules exist, the optimum is at most every makespan and is attained, every
   load, every job and the average load are at most the makespan, and relabeling the jobs preserves the makespan
   (`exists_isListSchedule`, `exists_isLPTSchedule`, `optMakespan_le`, `exists_makespan_eq_optMakespan`,
   `load_le_makespan`, `le_makespan_of_nonneg`, `sum_le_mul_makespan`, `makespan_comp`);
-- **the optimum over lists:** every assignment is matched or improved by a list schedule in the order of its start
-  times, so Graham's `ω₀`, the least finishing time over all lists, equals the optimum over all assignments
-  (`exists_listSchedule_le`, `isLeast_listSchedule_makespan`);
+- **the optimum over lists:** every assignment is matched or improved by a list schedule in some order, so Graham's
+  `ω₀`, the least finishing time over all lists, equals the optimum over all assignments (`exists_listSchedule_le`,
+  `isLeast_listSchedule_makespan`);
 - **the third cannot be weakened:** on three machines the jobs `9, 5, 5, 4, 4, 4`, each at least a third of the
   optimum `12`, have an LPT schedule of makespan `13` (`nine_five_four_lpt_thirteen`, `nine_five_four_optMakespan`,
   `lpt_third_le_not_optimal`), so neither `n ≤ 2m` jobs nor a weak third makes LPT optimal (Graham's 1972 survey,
@@ -70,9 +70,9 @@ proves them, kernel-only; the table in [VERIFICATION.md](VERIFICATION.md) names 
   (`lpt_lt_bound_of_card_ne`); proved by counting the jobs of each machine in the two schedules, not by Dósa's
   minimal-counterexample argument;
 - **a fixed number of jobs:** for every `n ≥ 2m + 1`, `4/3 − 1/(3m)` is still the supremum of `C(σ)/optMakespan` over
-  the LPT schedules of the positive instances with `n` jobs: Graham's jobs followed by `n − 2m − 1` jobs of a common
-  small length approach it (`isLUB_lpt_ratio_of_card`). Dósa's Remark 1 states a strict gap for every `n ≠ 2m + 1`;
-  it can therefore hold at most for `n < 2m + 1`, which is not formalized here.
+  the LPT schedules of the positive instances with `n` jobs (`isLUB_lpt_ratio_of_card`; the proof approaches it with
+  Graham's jobs followed by `n − 2m − 1` jobs of a common small length). Dósa's Remark 1 states a strict gap for
+  every `n ≠ 2m + 1`; it can therefore hold at most for `n < 2m + 1`, which is not formalized here.
 
 Lengths are nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966 nonnegative ones) and
 positive in Dósa's theorem (a zero job appended to Graham's instance keeps the ratio; replayed, not formalized). The proof of the LPT bound is by
@@ -92,7 +92,7 @@ Lean `v4.35.0-rc2` with Mathlib at the same tag (pinned by `lake-manifest.json`)
 pins, the source guard and its controls, the definition and statement checks, the standard-library replay
 (`scripts/check_lpt.py`: every list schedule of a small exhaustive sweep and of random instances, as separate
 tie-breaking branches, against the brute-force optimum; the key lemma; both families for `m` up to 10 and 8; the
-critical job's certificates; Dósa's theorem on integer boxes; the families for a fixed number of jobs; 889,111 checks,
+critical job's certificates; Dósa's theorem on integer boxes; the families for a fixed number of jobs; 889,121 checks,
 also under `python -O`), the metadata check, the build with the axiom audit (`Test/Axioms.lean` rejects any axiom
 beyond `propext`, `Classical.choice`, `Quot.sound`), the module-resolution check, the `pp.all` elaboration checks of
 the definitions and of the theorem types, and Palomar's core-notation audit, and ends with `VERIFY: PASS`

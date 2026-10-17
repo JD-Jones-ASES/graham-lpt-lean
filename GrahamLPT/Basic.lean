@@ -225,7 +225,7 @@ theorem bs_loadBefore_greedy {m n : ℕ} [NeZero m] (p : Fin n → ℝ) :
     · have hi' : ¬ bs_argmin (bs_gLoads p k) = i := fun h => hi h.symm
       simp [hi, hi']
 
-/-- A list schedule exists (the lowest-index tie-breaking, for instance). -/
+/-- A list schedule exists. -/
 theorem exists_isListSchedule_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) :
     ∃ σ : Fin n → Fin m, IsListSchedule p σ := by
   refine ⟨fun j : Fin n => bs_argmin (bs_gLoads p (j : ℕ)), fun k i => ?_⟩
@@ -275,7 +275,7 @@ theorem sum_le_mul_makespan_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) 
     ∑ j, p j ≤ (m : ℝ) * makespan p σ :=
   bs_sum_le_mul_makespan p σ
 
-/-- Relabeling the jobs by a permutation changes neither the loads nor the makespan. -/
+/-- Relabeling the jobs by a permutation does not change the makespan. -/
 theorem makespan_comp_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (σ : Fin n → Fin m) (π : Equiv.Perm (Fin n)) :
     makespan (p ∘ π) (σ ∘ π) = makespan p σ := by
   have h : load (p ∘ π) (σ ∘ π) = load p σ := funext (bs_load_comp p σ π)

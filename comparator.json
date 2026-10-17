@@ -21,6 +21,8 @@
     "GrahamLPT.lpt_eq_optMakespan_of_third_lt",
     "GrahamLPT.grahamJobs_antitone",
     "GrahamLPT.grahamJobs_optMakespan",
+    "GrahamLPT.grahamOrder_bijective",
+    "GrahamLPT.grahamJobs_grahamOrder",
     "GrahamLPT.grahamJobs_exists_optimal_listSchedule",
     "GrahamLPT.grahamJobs_lpt_makespan",
     "GrahamLPT.isLeast_lpt_ratio",

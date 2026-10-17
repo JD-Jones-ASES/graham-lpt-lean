@@ -38,17 +38,17 @@ This file states, and `Solution.lean` proves (kernel-only):
   Graham's proof in which the last task exceeds a third of the optimum, Lenstra–Shmoys's case (ii) (p. 189), stated as a
   theorem (`lpt_optimal_of_third_lt`, `lpt_eq_optMakespan_of_third_lt`); Graham's `2m + 1` jobs
   `2m − 1, 2m − 1, 2m − 2, 2m − 2, …, m + 1, m + 1, m, m, m` (1969, pp. 425–426: `α_k = 2m − ⌊(k + 1)/2⌋` for
-  `k = 1, …, 2m` and `α_{2m+1} = m`) have optimal makespan `3m`, attained by a list schedule, while every LPT schedule
-  of them has makespan `4m − 1`, for every `m ≥ 1` (`grahamJobs_antitone`, `grahamJobs_optMakespan`,
-  `grahamJobs_exists_optimal_listSchedule`, `grahamJobs_lpt_makespan`), so `4/3 − 1/(3m)` is the least constant
-  (`isLeast_lpt_ratio`);
+  `k = 1, …, 2m` and `α_{2m+1} = m`) have optimal makespan `3m`, attained by a list schedule in the order
+  `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` (the permutation `grahamOrder`: `grahamOrder_bijective`,
+  `grahamJobs_grahamOrder`), while every LPT schedule of them has makespan `4m − 1`, for every `m ≥ 1`
+  (`grahamJobs_antitone`, `grahamJobs_optMakespan`, `grahamJobs_exists_optimal_listSchedule`,
+  `grahamJobs_lpt_makespan`), so `4/3 − 1/(3m)` is the least constant (`isLeast_lpt_ratio`);
 * the elementary facts the bounds rest on: list schedules and LPT schedules exist, the optimum is attained, and every
   load, every job and the average load `(Σ p)/m` are at most the makespan (`exists_isListSchedule`,
   `exists_isLPTSchedule`, `optMakespan_le`, `exists_makespan_eq_optMakespan`, `load_le_makespan`,
   `le_makespan_of_nonneg`, `sum_le_mul_makespan`, `makespan_comp`);
 * Graham's `ω₀`, the least finishing time over all lists, equals the optimum over all assignments: every assignment is
-  matched or improved by a list schedule in the order of its start times (`exists_listSchedule_le`,
-  `isLeast_listSchedule_makespan`);
+  matched or improved by a list schedule in some order (`exists_listSchedule_le`, `isLeast_listSchedule_makespan`);
 * the third cannot be weakened: on three machines the jobs `9, 5, 5, 4, 4, 4`, each at least a third of the optimum `12`, have
   an LPT schedule of makespan `13` (`nine_five_four_lpt_thirteen`, `nine_five_four_optMakespan`,
   `lpt_third_le_not_optimal`), so neither `n ≤ 2m` jobs nor a weak third makes LPT optimal;
@@ -74,9 +74,9 @@ This file states, and `Solution.lean` proves (kernel-only):
   `lpt_eq_bound_iff_graham`), and with any number of jobs other than `2m + 1` the inequality is strict
   (`lpt_lt_bound_of_card_ne`);
 * a fixed number of jobs: for every `n ≥ 2m + 1`, `4/3 − 1/(3m)` is the supremum of `C(σ)/optMakespan` over the LPT
-  schedules of the positive instances with `n` jobs, approached by Graham's jobs followed by `n − 2m − 1` jobs of a
-  common small length (`isLUB_lpt_ratio_of_card`; Dósa's Remark 1 states a strict gap for every `n ≠ 2m + 1`, which
-  can therefore hold at most for `n < 2m + 1`, not formalized here).
+  schedules of the positive instances with `n` jobs (`isLUB_lpt_ratio_of_card`; the proof approaches it with Graham's
+  jobs followed by `n − 2m − 1` jobs of a common small length; Dósa's Remark 1 states a strict gap for every
+  `n ≠ 2m + 1`, which can therefore hold at most for `n < 2m + 1`, not formalized here).
 
 Graham's `ω₀` is the least finishing time over all lists; `optMakespan` is the least over all assignments, so the
 bounds here, stated against every assignment, are his by the equality above; for his instance the optimum `3m` is
@@ -85,8 +85,8 @@ proof of the LPT bound here is not Graham's exchange argument: when the job `k` 
 `3 p_k ≤ C(τ)`, the average-load bound gives the ratio directly; otherwise a counting argument shows that `k`'s machine
 ends by `C(τ)` (every job before `k` at least as long as `k`, every `τ`-machine holding at most two of the jobs up to
 `k`, and the jobs at least as long as the least load sitting alone on their `τ`-machines). All lengths are real, and
-nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966 nonnegative ones); the statements are
-division-free where a ratio is meant.
+nonnegative where a bound is stated (Graham 1969 takes positive lengths, 1966 nonnegative ones); Graham's two bounds
+are stated division-free against every assignment and again with real division against `optMakespan`.
 -/
 
 @[expose] public section
@@ -124,13 +124,24 @@ def IsLPTSchedule {m n : ℕ} (p : Fin n → ℝ) (σ : Fin n → Fin m) : Prop 
 def grahamJobs (m : ℕ) : Fin (2 * m + 1) → ℝ := fun j =>
   if (j : ℕ) < 2 * m then 2 * (m : ℝ) - 1 - (((j : ℕ) / 2 : ℕ) : ℝ) else (m : ℝ)
 
+/-- The order `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` of Graham's instance, as the job at each position:
+position `i < m − 1` holds job `2i` (length `2m − 1 − i`), positions `m − 1` and `m` hold jobs `2m − 2` and `2m − 1`
+(length `m`), position `m + 1 + a` with `a < m − 1` holds job `2a + 1` (length `2m − 1 − a`), and position `2m` holds
+job `2m` (length `m`). -/
+def grahamOrder (m : ℕ) (i : Fin (2 * m + 1)) : Fin (2 * m + 1) :=
+  if h : (i : ℕ) < m - 1 then ⟨2 * i, by omega⟩
+  else if (i : ℕ) = m - 1 then ⟨2 * m - 2, by omega⟩
+  else if (i : ℕ) = m then ⟨2 * m - 1, by omega⟩
+  else if h' : (i : ℕ) < 2 * m then ⟨2 * ((i : ℕ) - m - 1) + 1, by omega⟩
+  else ⟨2 * m, by omega⟩
+
 /-- Graham's instance for list scheduling: `m(m − 1)` unit jobs followed by one job of length `m`. -/
 def unitJobs (m : ℕ) : Fin (m * (m - 1) + 1) → ℝ := fun j =>
   if (j : ℕ) < m * (m - 1) then 1 else (m : ℝ)
 
 /-! ## The elementary facts -/
 
-/-- A list schedule exists (the lowest-index tie-breaking, for instance). -/
+/-- A list schedule exists. -/
 theorem exists_isListSchedule {m n : ℕ} [NeZero m] (p : Fin n → ℝ) :
     ∃ σ : Fin n → Fin m, IsListSchedule p σ := sorry
 
@@ -158,7 +169,7 @@ theorem le_makespan_of_nonneg {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : �
 theorem sum_le_mul_makespan {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (σ : Fin n → Fin m) :
     ∑ j, p j ≤ (m : ℝ) * makespan p σ := sorry
 
-/-- Relabeling the jobs by a permutation changes neither the loads nor the makespan. -/
+/-- Relabeling the jobs by a permutation does not change the makespan. -/
 theorem makespan_comp {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (σ : Fin n → Fin m) (π : Equiv.Perm (Fin n)) :
     makespan (p ∘ π) (σ ∘ π) = makespan p σ := sorry
 
@@ -217,11 +228,25 @@ theorem grahamJobs_antitone (m : ℕ) : Antitone (grahamJobs m) := sorry
 /-- Graham's instance has optimal makespan `3m`. -/
 theorem grahamJobs_optMakespan (m : ℕ) [NeZero m] : optMakespan m (grahamJobs m) = 3 * m := sorry
 
-/-- The optimum `3m` of Graham's instance is attained by a list schedule, in the order
-`2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m`. -/
+/-- The order `grahamOrder m` is a permutation of the `2m + 1` jobs. -/
+theorem grahamOrder_bijective (m : ℕ) : Function.Bijective (grahamOrder m) := sorry
+
+/-- The lengths of Graham's instance taken in the order `grahamOrder m` are
+`2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m`: position `i` holds length `2m − 1 − i` for `i < m − 1`, `m` for
+`i = m − 1` and `i = m`, `3m − i` for `m < i < 2m`, and `m` for `i = 2m`. -/
+theorem grahamJobs_grahamOrder (m : ℕ) (i : Fin (2 * m + 1)) :
+    grahamJobs m (grahamOrder m i) =
+      if (i : ℕ) < m - 1 then 2 * (m : ℝ) - 1 - ((i : ℕ) : ℝ)
+      else if (i : ℕ) ≤ m then (m : ℝ)
+      else if (i : ℕ) < 2 * m then 3 * (m : ℝ) - ((i : ℕ) : ℝ)
+      else (m : ℝ) := sorry
+
+/-- The optimum `3m` of Graham's instance is attained by a list schedule in the order `grahamOrder m`, that is
+`2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` (`grahamJobs_grahamOrder`): some assignment `σ` is a list schedule of
+the jobs taken in that order and has makespan `3m`. -/
 theorem grahamJobs_exists_optimal_listSchedule (m : ℕ) [NeZero m] :
-    ∃ π : Equiv.Perm (Fin (2 * m + 1)), ∃ σ : Fin (2 * m + 1) → Fin m,
-      IsListSchedule (grahamJobs m ∘ π) (σ ∘ π) ∧ makespan (grahamJobs m) σ = 3 * m := sorry
+    ∃ σ : Fin (2 * m + 1) → Fin m,
+      IsListSchedule (grahamJobs m ∘ grahamOrder m) (σ ∘ grahamOrder m) ∧ makespan (grahamJobs m) σ = 3 * m := sorry
 
 /-- Every LPT schedule of Graham's instance has makespan `4m − 1`: the bound `4/3 − 1/(3m)` is attained for every `m`. -/
 theorem grahamJobs_lpt_makespan (m : ℕ) [NeZero m] (σ : Fin (2 * m + 1) → Fin m)
@@ -236,7 +261,7 @@ theorem isLeast_lpt_ratio (m : ℕ) [NeZero m] :
 /-! ## The optimum over lists -/
 
 /-- Graham's `ω₀` is attained: for nonnegative lengths, every assignment `τ` is matched or improved by a list schedule
-in some order (the jobs listed by their start times when each machine of `τ` runs its jobs in index order). -/
+in some order. -/
 theorem exists_listSchedule_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (τ : Fin n → Fin m) :
     ∃ (π : Equiv.Perm (Fin n)) (σ : Fin n → Fin m),
       IsListSchedule (p ∘ π) (σ ∘ π) ∧ makespan p σ ≤ makespan p τ := sorry
@@ -249,13 +274,13 @@ theorem isLeast_listSchedule_makespan {m n : ℕ} [NeZero m] (p : Fin n → ℝ)
 
 /-! ## The third cannot be weakened -/
 
-/-- On three machines the assignment `0, 1, 2, 1, 2, 0` of the jobs `9, 5, 5, 4, 4, 4` is an LPT schedule (the identity
-order, lowest-index ties) of makespan `13`. -/
+/-- On three machines the assignment `0, 1, 2, 1, 2, 0` of the jobs `9, 5, 5, 4, 4, 4` is an LPT schedule of makespan
+`13`. -/
 theorem nine_five_four_lpt_thirteen :
     IsLPTSchedule (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) ∧
       makespan (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) (![0, 1, 2, 1, 2, 0] : Fin 6 → Fin 3) = 13 := sorry
 
-/-- The jobs `9, 5, 5, 4, 4, 4` have optimal makespan `12` on three machines (`9 | 5, 5 | 4, 4, 4`). -/
+/-- The jobs `9, 5, 5, 4, 4, 4` have optimal makespan `12` on three machines. -/
 theorem nine_five_four_optMakespan : optMakespan 3 (![9, 5, 5, 4, 4, 4] : Fin 6 → ℝ) = 12 := sorry
 
 /-- The strict third in `lpt_optimal_of_third_lt` cannot be weakened to `≤`, and `n ≤ 2m` jobs do not make LPT
@@ -284,7 +309,7 @@ theorem lpt_bound_of_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j
     ((univ.filter (fun j : Fin n => σ j = i)).card : ℝ) * m * makespan p σ ≤
       (((univ.filter (fun j : Fin n => σ j = i)).card + 1) * m - 1) * makespan p τ := sorry
 
-/-! ## The critical job: certificates (30–33) -/
+/-! ## The critical job: certificates -/
 
 /-- The critical job's certificate: in a list schedule of a nonincreasing `p`, for a job `k` whose completion time is
 the makespan, the smaller of `C(σ)` and `3 p_k` is at most `C(τ)` for every assignment `τ` (the key lemma read as a
@@ -293,16 +318,18 @@ theorem lpt_critical_min_le {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀
     (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (hk : makespan p σ = loadBefore p σ k (σ k) + p k)
     (τ : Fin n → Fin m) : min (makespan p σ) (3 * p k) ≤ makespan p τ := sorry
 
-/-- The observed-third certificate: when a critical job `k` is at least a third of the makespan it completes, the list
-schedule is optimal (`lpt_eq_optMakespan_of_third_lt` asks every job to exceed a third of the unknown optimum). -/
+/-- The observed-third certificate: in a list schedule of a nonincreasing `p`, when a critical job `k` is at least a
+third of the makespan it completes, the schedule is optimal (`lpt_eq_optMakespan_of_third_lt` asks every job to exceed
+a third of the unknown optimum). -/
 theorem lpt_eq_optMakespan_of_critical_third {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
     (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
     (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (h3 : makespan p σ ≤ 3 * p k) :
     makespan p σ = optMakespan m p := sorry
 
-/-- Equality in Graham's LPT bound against `τ` on `m ≥ 2` machines, with `k` a critical job, forces the four
-inequalities of its proof to be equalities: `3 p_k = C(τ)`, every machine of `σ` carries the least load before `k`,
-every machine of `τ` carries exactly `C(τ)`, and every job after `k` has length `0`. -/
+/-- In a list schedule `σ` of a nonincreasing `p` on `m ≥ 2` machines, with `k` a critical job, equality in Graham's
+LPT bound against `τ` forces the four inequalities of its proof to be equalities: `3 p_k = C(τ)`, every machine of
+`σ` carries the least load before `k`, every machine of `τ` carries exactly `C(τ)`, and every job after `k` has
+length `0`. -/
 theorem lpt_eq_bound_structure {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
     (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
     (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (τ : Fin n → Fin m)
@@ -310,8 +337,8 @@ theorem lpt_eq_bound_structure {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (p : Fin n 
     3 * p k = makespan p τ ∧ (∀ i, loadBefore p σ k i = loadBefore p σ k (σ k)) ∧
       (∀ i, load p τ i = makespan p τ) ∧ ∀ j : Fin n, (k : ℕ) < j → p j = 0 := sorry
 
-/-- Della Croce–Scatamacchia's Proposition 4, from Chen's property: if a machine `i` other than the critical job's
-holds at least `q` jobs before the critical job `k`, and `q + 2 ≤ m`, then
+/-- Della Croce–Scatamacchia's Proposition 4, from Chen's property: in a list schedule `σ` of a nonincreasing `p`, if a
+machine `i` other than the critical job's holds at least `q` jobs before the critical job `k`, and `q + 2 ≤ m`, then
 `q(m − 1) · C(σ) ≤ ((q + 1)(m − 1) − 1) · C(τ)` for every assignment `τ`. -/
 theorem lpt_bound_of_other_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
     (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (hk : makespan p σ = loadBefore p σ k (σ k) + p k)
@@ -319,10 +346,10 @@ theorem lpt_bound_of_other_card {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp :
     (hqm : q + 2 ≤ m) (τ : Fin n → Fin m) :
     (q : ℝ) * (m - 1) * makespan p σ ≤ ((q + 1) * (m - 1) - 1) * makespan p τ := sorry
 
-/-! ## Graham's example is the only tight one (Dósa 2004) (34–38) -/
+/-! ## Graham's example is the only tight one (Dósa 2004) -/
 
-/-- Every positive multiple of Graham's instance, in any order, attains the bound: every LPT schedule has makespan
-`(4m − 1) a` against the optimum `3m a`. -/
+/-- Every positive multiple of Graham's instance, in any order, attains the bound: every LPT schedule `σ` satisfies
+`3m · C(σ) = (4m − 1) · optMakespan`. -/
 theorem lpt_eq_bound_of_graham {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (a : ℝ) (ha : 0 < a)
     (e : Fin n ≃ Fin (2 * m + 1)) (he : ∀ j, p j = a * grahamJobs m (e j)) (σ : Fin n → Fin m)
     (hσ : IsLPTSchedule p σ) : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p := sorry
@@ -356,12 +383,11 @@ theorem lpt_lt_bound_of_card_ne {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (hn : 0 < 
     (p : Fin n → ℝ) (hp : ∀ j, 0 < p j) (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) :
     3 * m * makespan p σ < (4 * m - 1) * optMakespan m p := sorry
 
-/-! ## The supremum for a fixed number of jobs (39) -/
+/-! ## The supremum for a fixed number of jobs -/
 
 /-- For every fixed number `n ≥ 2m + 1` of jobs, Graham's constant `4/3 − 1/(3m)` is still the supremum of
-`C(σ)/optMakespan` over the LPT schedules of the positive instances with `n` jobs: Graham's jobs followed by
-`n − 2m − 1` jobs of a common small length approach it (and, for `m ≥ 2`, attain it only at `n = 2m + 1`,
-`lpt_lt_bound_of_card_ne`). -/
+`C(σ)/optMakespan` over the LPT schedules of the positive instances with `n` jobs (for `m ≥ 2` it is attained only at
+`n = 2m + 1`, `lpt_lt_bound_of_card_ne`). -/
 theorem isLUB_lpt_ratio_of_card {m n : ℕ} [NeZero m] (hn : 2 * m + 1 ≤ n) :
     IsLUB {r : ℝ | ∃ (p : Fin n → ℝ) (σ : Fin n → Fin m), (∀ j, 0 < p j) ∧ IsLPTSchedule p σ ∧
       r = makespan p σ / optMakespan m p} (4 / 3 - 1 / (3 * m)) := sorry

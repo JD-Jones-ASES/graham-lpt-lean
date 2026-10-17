@@ -97,9 +97,20 @@ theorem grahamJobs_antitone (m : ℕ) : Antitone (grahamJobs m) :=
 theorem grahamJobs_optMakespan (m : ℕ) [NeZero m] : optMakespan m (grahamJobs m) = 3 * m :=
   grahamJobs_optMakespan_internal m
 
+theorem grahamOrder_bijective (m : ℕ) : Function.Bijective (grahamOrder m) :=
+  grahamOrder_bijective_internal m
+
+theorem grahamJobs_grahamOrder (m : ℕ) (i : Fin (2 * m + 1)) :
+    grahamJobs m (grahamOrder m i) =
+      if (i : ℕ) < m - 1 then 2 * (m : ℝ) - 1 - ((i : ℕ) : ℝ)
+      else if (i : ℕ) ≤ m then (m : ℝ)
+      else if (i : ℕ) < 2 * m then 3 * (m : ℝ) - ((i : ℕ) : ℝ)
+      else (m : ℝ) :=
+  grahamJobs_grahamOrder_internal m i
+
 theorem grahamJobs_exists_optimal_listSchedule (m : ℕ) [NeZero m] :
-    ∃ π : Equiv.Perm (Fin (2 * m + 1)), ∃ σ : Fin (2 * m + 1) → Fin m,
-      IsListSchedule (grahamJobs m ∘ π) (σ ∘ π) ∧ makespan (grahamJobs m) σ = 3 * m :=
+    ∃ σ : Fin (2 * m + 1) → Fin m,
+      IsListSchedule (grahamJobs m ∘ grahamOrder m) (σ ∘ grahamOrder m) ∧ makespan (grahamJobs m) σ = 3 * m :=
   grahamJobs_exists_optimal_listSchedule_internal m
 
 theorem grahamJobs_lpt_makespan (m : ℕ) [NeZero m] (σ : Fin (2 * m + 1) → Fin m)

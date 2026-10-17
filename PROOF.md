@@ -77,17 +77,19 @@ least load before `k` (`IsListSchedule`); `C(σ) := makespan p σ`. The finite f
    (`tg_comp_eq`, `Tuple.unique_antitone`), so `σ ∘ π` is a list schedule of the family in its own order and
    `makespan_comp` transfers `4m − 1` (`grahamJobs_lpt_makespan`).
 7. **The optimum of Graham's family as a list schedule** (`OptList.lean`). The order
-   `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` is the relabeling `ol_index` (position `i < m − 1` to index `2i`,
-   positions `m − 1, m` to `2m − 2, 2m − 1`, position `m + 1 + a` to `2a + 1`, position `2m` to `2m`), a bijection
-   (`ol_index_bijective`, injective by cases). The schedule `ol_machine` sends position `i < m − 1` to machine `i`,
+   `2m − 1, …, m + 1, m, m, 2m − 1, …, m + 1, m` is the Challenge definition `grahamOrder` (position `i < m − 1` to
+   index `2i`, positions `m − 1, m` to `2m − 2, 2m − 1`, position `m + 1 + a` to `2a + 1`, position `2m` to `2m`), a
+   bijection (`grahamOrder_bijective`, proved as `grahamOrder_bijective_internal`, injective by cases); the length at
+   position `i` is the natural number `ol_qN m i` (`ol_q`), which gives the closed form `2m − 1 − i`, `m`, `3m − i`, `m`
+   of `grahamJobs_grahamOrder` (at `m = 0` by `simp`). The schedule `ol_machine` sends position `i < m − 1` to machine `i`,
    positions `m − 1`, `m` and `2m` to the last machine, and position `m + 1 + a` to machine `m − 2 − a`. The load of
    machine `b` before position `k` is an explicit sum over a fiber of at most three positions (`ol_loadBefore`: for
    `b < m − 1` the positions `b` and `2m − 1 − b`, carrying `2m − 1 − b` and `m + 1 + b`; for the last machine the
    positions `m − 1`, `m`, `2m`, carrying `m` each), computed as a natural number `ol_loadN`; at every step the machine
    chosen has the least such load (`ol_listN`, a case split closed by `omega`), so `ol_machine` is a list schedule of the
    reordered family (`ol_isListSchedule`), and every final load is `3m` (`ol_load`, `ol_makespan`). With
-   `π := Equiv.ofBijective (ol_index m)` and `σ := ol_machine m ∘ π.symm`, `makespan_comp` gives the Challenge
-   statement (`grahamJobs_exists_optimal_listSchedule`).
+   `π := Equiv.ofBijective (grahamOrder m)` and `σ := ol_machine m ∘ π.symm`, so that `σ ∘ grahamOrder m = ol_machine m`,
+   `makespan_comp` gives the Challenge statement over `grahamOrder` (`grahamJobs_exists_optimal_listSchedule`).
 8. **The least constants** (`Ratio.lean`). Membership of `2 − 1/m` in the set of valid constants is `listSchedule_bound`
    divided by `m`; for any constant `c` in the set, the unit-job family with a list schedule (`exists_isListSchedule`) and an
    optimal `τ` gives `2m − 1 ≤ c · m` (`isLeast_listSchedule_ratio`). Likewise `4/3 − 1/(3m)` with `lpt_bound`, and

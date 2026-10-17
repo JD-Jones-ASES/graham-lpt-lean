@@ -68,8 +68,9 @@ theorem lpt_critical_min_le_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) 
     rw [← hk] at hkey
     exact (min_le_left _ _).trans hkey
 
-/-- The observed-third certificate: when a critical job `k` is at least a third of the makespan it completes, the list
-schedule is optimal (`lpt_eq_optMakespan_of_third_lt` asks every job to exceed a third of the unknown optimum). -/
+/-- The observed-third certificate: in a list schedule of a nonincreasing `p`, when a critical job `k` is at least a
+third of the makespan it completes, the schedule is optimal (`lpt_eq_optMakespan_of_third_lt` asks every job to exceed
+a third of the unknown optimum). -/
 theorem lpt_eq_optMakespan_of_critical_third_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
     (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
     (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (h3 : makespan p σ ≤ 3 * p k) :
@@ -79,9 +80,10 @@ theorem lpt_eq_optMakespan_of_critical_third_internal {m n : ℕ} [NeZero m] (p 
   rw [min_eq_left h3, hτ] at h
   exact le_antisymm h (optMakespan_le_internal p σ)
 
-/-- Equality in Graham's LPT bound against `τ` on `m ≥ 2` machines, with `k` a critical job, forces the four
-inequalities of its proof to be equalities: `3 p_k = C(τ)`, every machine of `σ` carries the least load before `k`,
-every machine of `τ` carries exactly `C(τ)`, and every job after `k` has length `0`. -/
+/-- In a list schedule `σ` of a nonincreasing `p` on `m ≥ 2` machines, with `k` a critical job, equality in Graham's
+LPT bound against `τ` forces the four inequalities of its proof to be equalities: `3 p_k = C(τ)`, every machine of
+`σ` carries the least load before `k`, every machine of `τ` carries exactly `C(τ)`, and every job after `k` has
+length `0`. -/
 theorem lpt_eq_bound_structure_internal {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
     (hanti : Antitone p) (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n)
     (hk : makespan p σ = loadBefore p σ k (σ k) + p k) (τ : Fin n → Fin m)
@@ -148,8 +150,8 @@ theorem lpt_eq_bound_structure_internal {m n : ℕ} [NeZero m] (hm : 2 ≤ m) (p
       rw [Finset.sum_insert hjA, Finset.sum_insert hkA] at hsub
       exact le_antisymm (by linarith) (hp j)
 
-/-- Della Croce–Scatamacchia's Proposition 4, from Chen's property: if a machine `i` other than the critical job's
-holds at least `q` jobs before the critical job `k`, and `q + 2 ≤ m`, then
+/-- Della Croce–Scatamacchia's Proposition 4, from Chen's property: in a list schedule `σ` of a nonincreasing `p`, if a
+machine `i` other than the critical job's holds at least `q` jobs before the critical job `k`, and `q + 2 ≤ m`, then
 `q(m − 1) · C(σ) ≤ ((q + 1)(m − 1) − 1) · C(τ)` for every assignment `τ`. -/
 theorem lpt_bound_of_other_card_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j) (hanti : Antitone p)
     (σ : Fin n → Fin m) (hσ : IsListSchedule p σ) (k : Fin n) (hk : makespan p σ = loadBefore p σ k (σ k) + p k)

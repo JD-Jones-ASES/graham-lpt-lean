@@ -180,7 +180,8 @@ def tau_prime(m, j):
     return min(j, 2 * m - 1 - j) if j < 2 * m else 0
 
 
-def ol_index(m, i):
+def graham_order(m, i):
+    """The job at position i of the order 2m-1, ..., m+1, m, m, 2m-1, ..., m+1, m; mirrors the Challenge definition grahamOrder."""
     if i < m - 1:
         return 2 * i
     if i == m - 1:
@@ -216,9 +217,12 @@ def graham_family():
         for s in bs:
             check(f"family loads after 2m jobs m={m}", loads_of(p[:2 * m], s[:2 * m], m) == [F(3 * m - 1)] * m)
             check(f"family LPT makespan 4m-1 m={m}", makespan(p, s, m) == 4 * m - 1)
-        idx = [ol_index(m, i) for i in range(n)]
+        idx = [graham_order(m, i) for i in range(n)]
         check(f"order map bijective m={m}", sorted(idx) == list(range(n)))
         q = [p[idx[i]] for i in range(n)]
+        check(f"order lengths closed form m={m}",
+              q == [F(2 * m - 1 - i) if i < m - 1 else F(m) if i <= m else F(3 * m - i) if i < 2 * m else F(m)
+                    for i in range(n)])
         sched = tuple(ol_machine(m, i) for i in range(n))
         check(f"explicit order is a list schedule m={m}", is_list_schedule(q, sched, m))
         check(f"explicit order makespan 3m m={m}", makespan(q, sched, m) == 3 * m)

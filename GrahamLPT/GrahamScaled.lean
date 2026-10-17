@@ -78,8 +78,8 @@ theorem gs_optMakespan_comp {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (π : Equ
     rw [← hτ, ← h]
     exact optMakespan_le_internal _ (τ ∘ π.symm)
 
-/-- Every positive multiple of Graham's instance, in any order, attains the bound: every LPT schedule has makespan
-`(4m − 1) a` against the optimum `3m a`. -/
+/-- Every positive multiple of Graham's instance, in any order, attains the bound: every LPT schedule `σ` satisfies
+`3m · C(σ) = (4m − 1) · optMakespan`. -/
 theorem lpt_eq_bound_of_graham_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (a : ℝ) (ha : 0 < a)
     (e : Fin n ≃ Fin (2 * m + 1)) (he : ∀ j, p j = a * grahamJobs m (e j)) (σ : Fin n → Fin m)
     (hσ : IsLPTSchedule p σ) : 3 * m * makespan p σ = (4 * m - 1) * optMakespan m p := by

@@ -340,9 +340,10 @@ theorem cs_bound {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p
     have h5 := mul_le_mul_of_nonneg_left hchen (by linarith : (0 : ℝ) ≤ m - 1)
     nlinarith
 
-/-- The Coffman–Sethi form for LPT schedules (Coffman–Sethi 1976 as corrected by Chen 1993): for nonnegative
-lengths, an LPT schedule `σ`, a machine `i` attaining its makespan and holding `k` jobs, and every assignment `τ`,
-`k·m·C(σ) ≤ ((k + 1)m − 1)·C(τ)`. -/
+/-- The Coffman–Sethi form of the LPT bound: if a machine `i` attaining the makespan of an LPT schedule holds `q` jobs,
+then `q·m · C(σ) ≤ ((q + 1)m − 1) · C(τ)` for every assignment `τ` (Coffman–Sethi 1976 as corrected by Chen 1993, as
+Della Croce and Scatamacchia restate it; the literature states it for `q ≥ 3`; for `m ≥ 2` it is weaker than
+`lpt_bound` at `q ≤ 2`, and its attainment is not proved here). -/
 theorem lpt_bound_of_card_internal {m n : ℕ} [NeZero m] (p : Fin n → ℝ) (hp : ∀ j, 0 ≤ p j)
     (σ : Fin n → Fin m) (hσ : IsLPTSchedule p σ) (τ : Fin n → Fin m) (i : Fin m)
     (hi : load p σ i = makespan p σ) :
