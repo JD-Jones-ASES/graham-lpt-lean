@@ -11,11 +11,11 @@ scripts/check_lpt.py (the bounds, the key lemma and both families, under -I and 
 its title length, main results and alignment against comparator.json, every alignment status proved; no
 definition holes; no original-proof source), the Lean build of every target (including the Test audit, which fails on
 any axiom beyond propext, Classical.choice and Quot.sound), the module-resolution check, the
-elaboration checks of the compared definitions and of every constant named under them (printed with
+elaboration checks of the Challenge definitions and of every constant named under them (printed with
 pp.all from the Challenge and from GrahamLPT.Defs; a module-private auxiliary would differ) and of the
 compared theorems' types (from the Challenge and from the Solution), which must
 agree exactly as the registry's comparator demands, and Palomar's
-core-notation audit of the compared declarations. The compared definitions are read from
+core-notation audit of the declarations of the statement surface. The Challenge definitions are read from
 Challenge.lean at run time: every `def`, `noncomputable def` and `abbrev` at the start of a line, in namespace
 GrahamLPT. `--fetch-cache` runs
 `lake exe cache get` first (network); `--skip-build` leaves out the four Lean steps. The last line
@@ -158,7 +158,7 @@ def check_module_resolution():
 
 
 def check_definition_elaboration(names):
-    """The compared definitions, printed with pp.all from the Challenge and from the development's
+    """The Challenge definitions, printed with pp.all from the Challenge and from the development's
     definitions module, must agree exactly: the comparator judges the elaborated constants, which
     depend on the imports through instance resolution."""
     config = json.loads((ROOT / "comparator.json").read_text(encoding="utf-8"))
@@ -197,7 +197,7 @@ run_cmd do
 
 
 def check_auxiliary_elaboration(names):
-    """Every constant of the environment named under a compared definition (the definition itself and
+    """Every constant of the environment named under a Challenge definition (the definition itself and
     the auxiliary `_proof_n` theorems Lean abstracts from the proofs inside its body), printed with
     pp.all and pp.proofs from the Challenge and from the development's definitions module, must agree
     exactly. The registry's comparator compares the auxiliary constants too, and an auxiliary theorem
@@ -270,7 +270,7 @@ def main():
     fetch = "--fetch-cache" in sys.argv
     skip_build = "--skip-build" in sys.argv
     names = definitions()
-    ok = step("compared definitions read from Challenge.lean", len(names) > 0,
+    ok = step("Challenge definitions read from Challenge.lean", len(names) > 0,
               f"{len(names)} names")
     ok &= check_pins()
     ok &= check_script("source guard", ["scripts/check-source.py"])

@@ -73,7 +73,7 @@ fully specified in the Challenge, so the comparator checks the Solution's values
   module-private auxiliary carries its module's name, which is what the comparator rejected on 2026-10-18: `omega`
   inside `grahamOrder`'s body, since replaced by explicit terms), prints every compared theorem's type from the
   Challenge and from the Solution and requires identical output, and runs Palomar's `core_notation_audit.lean` on
-  every compared declaration (50 rows: the forty-one theorems and the nine definitions, exit 0).
+  every declaration of the statement surface (50 rows: the forty-one theorems and the nine definitions, exit 0).
 - **The replay.** `scripts/check_lpt.py` (standard library only, exact rationals, 889,121 checks, `VERDICT: PASS`,
   also under `python -O`): every list schedule of every nonincreasing instance of a small exhaustive sweep and of random
   rational instances, as separate tie-breaking branches, against the brute-force optimum — the bounds `m·C_LS ≤

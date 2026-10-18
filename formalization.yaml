@@ -291,7 +291,7 @@ related_formalizations:
       approximation ratios and algorithms; no scheduling. Adjacent registry infrastructure only.
 status:
   scope: >-
-    Forty-one compared theorems over nine compared definitions (namespace GrahamLPT): loads before an index and
+    Forty-one compared theorems over nine Challenge definitions (namespace GrahamLPT): loads before an index and
     in full, the makespan, the optimal makespan, list schedules in the index order under every tie-breaking, LPT
     schedules as list schedules of some nonincreasing order, Graham's family, its order
     2m - 1, ..., m + 1, m, m, 2m - 1, ..., m + 1, m (grahamOrder), and the unit-job family. The elementary
