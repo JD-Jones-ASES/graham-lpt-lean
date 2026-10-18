@@ -11,8 +11,9 @@ scripts/check_lpt.py (the bounds, the key lemma and both families, under -I and 
 its title length, main results and alignment against comparator.json, every alignment status proved; no
 definition holes; no original-proof source), the Lean build of every target (including the Test audit, which fails on
 any axiom beyond propext, Classical.choice and Quot.sound), the module-resolution check, the
-elaboration checks of the compared definitions (printed with pp.all from the Challenge and from
-GrahamLPT.Defs) and of the compared theorems' types (from the Challenge and from the Solution), which must
+elaboration checks of the compared definitions and of every constant named under them (printed with
+pp.all from the Challenge and from GrahamLPT.Defs; a module-private auxiliary would differ) and of the
+compared theorems' types (from the Challenge and from the Solution), which must
 agree exactly as the registry's comparator demands, and Palomar's
 core-notation audit of the compared declarations. The compared definitions are read from
 Challenge.lean at run time: every `def`, `noncomputable def` and `abbrev` at the start of a line, in namespace
@@ -176,6 +177,53 @@ def check_definition_elaboration(names):
     return step(f"definition elaboration (Challenge vs {NAMESPACE}.Defs, pp.all, {len(names)} names)",
                 ok, "identical" if ok else "the printed terms differ or a print failed")
 
+AUX_PROBE = """import {module}
+set_option pp.all true
+set_option pp.proofs true
+open Lean Elab Command in
+run_cmd do
+  let env ← getEnv
+  let defs : List Name := [{names}]
+  let mut found : Array Name := #[]
+  for (n, _) in env.constants.toList do
+    let user := (privateToUserName? n).getD n
+    if defs.any (fun d => d.isPrefixOf user) then found := found.push n
+  let sorted := found.qsort (fun a b => a.toString < b.toString)
+  for n in sorted do
+    let some ci := env.find? n | continue
+    let val := match ci.value? with | some v => m!"{{v}}" | none => m!"<none>"
+    logInfo m!"{{n}} : {{ci.type}} := {{val}}"
+"""
+
+
+def check_auxiliary_elaboration(names):
+    """Every constant of the environment named under a compared definition (the definition itself and
+    the auxiliary `_proof_n` theorems Lean abstracts from the proofs inside its body), printed with
+    pp.all and pp.proofs from the Challenge and from the development's definitions module, must agree
+    exactly. The registry's comparator compares the auxiliary constants too, and an auxiliary theorem
+    that is private to its module carries the module name (`_private.Challenge.0...` against
+    `_private.GrahamLPT.Defs.0...`), so the two prints differ wherever one exists: `omega` inside a
+    definition's body produced one (the comparator's rejection of 2026-10-18); explicit terms do not."""
+    config = json.loads((ROOT / "comparator.json").read_text(encoding="utf-8"))
+    scratch = ROOT / ".scratch"
+    scratch.mkdir(exist_ok=True)
+    outputs = []
+    for module in (config["challenge_module"], f"{NAMESPACE}.Defs"):
+        path = scratch / f"verify_aux_{module.replace('.', '_')}.lean"
+        path.write_text(AUX_PROBE.format(module=module, names=", ".join("``" + n for n in names)),
+                        encoding="utf-8")
+        result = run(["lake", "env", "lean", str(path)], capture_output=True)
+        body = "\n".join(line.split(": info: ", 1)[-1] for line in result.stdout.splitlines())
+        outputs.append((result.returncode, body))
+        path.unlink()
+    constants = sum(1 for line in outputs[0][1].splitlines() if " := " in line)
+    ok = all(rc == 0 for rc, _ in outputs) and constants >= len(names) and \
+        outputs[0][1] == outputs[1][1] and "_private." not in outputs[0][1]
+    return step(f"auxiliary-constant elaboration (Challenge vs {NAMESPACE}.Defs, pp.all, "
+                f"{len(names)} definitions)", ok,
+                f"identical, {constants} constants, none private" if ok
+                else "the printed constants differ, one is private, or a print failed")
+
 
 def check_theorem_elaboration():
     """The compared theorems, printed (#check with pp.all) from the Challenge and from the Solution, must agree
@@ -237,11 +285,12 @@ def main():
         ok &= check_build()
         ok &= check_module_resolution()
         ok &= check_definition_elaboration(names)
+        ok &= check_auxiliary_elaboration(names)
         ok &= check_theorem_elaboration()
         ok &= check_notation_audit(names)
     else:
-        print("[SKIP] Lean build and axiom audit; module resolution; definition elaboration; "
-              "core-notation audit", flush=True)
+        print("[SKIP] Lean build and axiom audit; module resolution; definition and auxiliary-constant "
+              "elaboration; core-notation audit", flush=True)
     scope = "VERIFY (source/replay only)" if skip_build else "VERIFY"
     print(f"{scope}: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1

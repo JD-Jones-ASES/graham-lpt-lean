@@ -95,7 +95,8 @@ tie-breaking branches, against the brute-force optimum; the key lemma; both fami
 critical job's certificates; Dósa's theorem on integer boxes; the families for a fixed number of jobs; 889,121 checks,
 also under `python -O`), the metadata check, the build with the axiom audit (`Test/Axioms.lean` rejects any axiom
 beyond `propext`, `Classical.choice`, `Quot.sound`), the module-resolution check, the `pp.all` elaboration checks of
-the definitions and of the theorem types, and Palomar's core-notation audit, and ends with `VERIFY: PASS`
+the definitions, of every constant named under them (none module-private) and of the theorem types, and Palomar's
+core-notation audit, and ends with `VERIFY: PASS`
 (`--skip-build` leaves out the Lean steps and ends with `VERIFY (source/replay only)`, which does not check the proofs).
 [PROOF.md](PROOF.md) gives the proofs with the Lean names; [DISCLOSURE.md](DISCLOSURE.md) says how the repository was made.
 

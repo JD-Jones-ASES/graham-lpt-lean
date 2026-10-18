@@ -129,11 +129,19 @@ position `i < m − 1` holds job `2i` (length `2m − 1 − i`), positions `m �
 (length `m`), position `m + 1 + a` with `a < m − 1` holds job `2a + 1` (length `2m − 1 − a`), and position `2m` holds
 job `2m` (length `m`). -/
 def grahamOrder (m : ℕ) (i : Fin (2 * m + 1)) : Fin (2 * m + 1) :=
-  if h : (i : ℕ) < m - 1 then ⟨2 * i, by omega⟩
-  else if (i : ℕ) = m - 1 then ⟨2 * m - 2, by omega⟩
-  else if (i : ℕ) = m then ⟨2 * m - 1, by omega⟩
-  else if h' : (i : ℕ) < 2 * m then ⟨2 * ((i : ℕ) - m - 1) + 1, by omega⟩
-  else ⟨2 * m, by omega⟩
+  if h : (i : ℕ) < m - 1 then
+    ⟨2 * i, Nat.lt_succ_of_lt (Nat.lt_of_lt_of_le (Nat.mul_lt_mul_of_pos_left h Nat.two_pos)
+      (Nat.mul_le_mul_left 2 (Nat.sub_le m 1)))⟩
+  else if (i : ℕ) = m - 1 then ⟨2 * m - 2, Nat.lt_succ_of_le (Nat.sub_le _ _)⟩
+  else if (i : ℕ) = m then ⟨2 * m - 1, Nat.lt_succ_of_le (Nat.sub_le _ _)⟩
+  else if h' : (i : ℕ) < 2 * m then
+    ⟨2 * ((i : ℕ) - m - 1) + 1, Nat.succ_lt_succ (Nat.mul_lt_mul_of_pos_left
+      (Nat.lt_of_le_of_lt
+        (Nat.sub_le_sub_right (Nat.sub_le_iff_le_add.2 (Nat.two_mul m ▸ Nat.le_of_lt h')) 1)
+        (Nat.sub_one_lt (Nat.ne_of_gt (Nat.lt_of_mul_lt_mul_left (a := 2) (b := 0)
+          (Nat.lt_of_le_of_lt (Nat.zero_le i) h')))))
+      Nat.two_pos)⟩
+  else ⟨2 * m, Nat.lt_succ_self _⟩
 
 /-- Graham's instance for list scheduling: `m(m − 1)` unit jobs followed by one job of length `m`. -/
 def unitJobs (m : ℕ) : Fin (m * (m - 1) + 1) → ℝ := fun j =>
